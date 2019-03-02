@@ -17,8 +17,20 @@ namespace Vnm
         DescriptorSet() = default;
         ~DescriptorSet() = default;
 
-        void Create(Device& device, DescriptorPool& descriptorPool, DescriptorSetLayout& descriptorSetLayout);
-        void Update(Device& device, Buffer& buffer, Image& image, Sampler& sampler);
+        void Create(
+            Device& device, 
+            DescriptorPool& descriptorPool, 
+            DescriptorSetLayout& descriptorSetLayout);
+
+        void Update(
+            Device& device, 
+            Buffer& buffer, 
+            Image& image, 
+            Sampler& sampler);
+
+        void Destroy(
+            Device& device,
+            DescriptorPool& descriptorPool);
 
         VkDescriptorSet* GetDescriptorSetPtr() { return &mDescriptorSet; }
 

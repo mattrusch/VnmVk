@@ -211,4 +211,12 @@ namespace Vnm
 
         vkCreateImageView(device.GetDevice(), &imageViewCreateInfo, nullptr, &mImageView);
     }
+
+    void Image::Destroy(Device& device, Allocator& allocator)
+    {
+        mStagingBuffer.Destroy(device, allocator);
+        allocator.Free(device.GetDevice(), mImageMemory);
+        vkDestroyImageView(device.GetDevice(), mImageView, nullptr);
+        vkDestroyImage(device.GetDevice(), mImage, nullptr);
+    }
 }

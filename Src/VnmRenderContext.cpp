@@ -100,6 +100,17 @@ namespace
             vkCreateFramebuffer(device, &framebufferCreateInfo, nullptr, &outFramebuffers[i]);
         }
     }
+
+    void DestroyFramebuffers(
+        VkDevice device, 
+        VkFramebuffer* framebuffers, 
+        int count)
+    {
+        for (int i = 0; i < count; ++i)
+        {
+            vkDestroyFramebuffer(device, framebuffers[i], nullptr);
+        }
+    }
 }
 
 namespace Vnm
@@ -225,5 +236,10 @@ namespace Vnm
         vkQueuePresentKHR(mDevice.GetQueue(), &presentInfo);
 
         vkQueueSubmit(mDevice.GetQueue(), 0, nullptr, mFences[mCurrentBackbufferIndex]);
+    }
+
+    void RenderContext::Shutdown()
+    {
+        assert(!"Stubbed - complete this function");
     }
 }

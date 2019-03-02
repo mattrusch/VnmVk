@@ -17,6 +17,11 @@ namespace
         return result;
     }
 
+    void DestroyBuffer(VkDevice device, VkBuffer buffer)
+    {
+        vkDestroyBuffer(device, buffer, nullptr);
+    }
+
     VkDeviceMemory AllocateDeviceMemory(Vnm::Allocator& allocator, VkDevice device, VkBuffer buffer, uint32_t memoryProperties, bool* isHostCoherent = nullptr)
     {
         VkMemoryRequirements memoryRequirements = {};
@@ -44,6 +49,11 @@ namespace
 
         vkUnmapMemory(device, deviceMemory);
     }
+
+    void FreeDeviceMemory(Vnm::Allocator& allocator, VkDevice device, VkDeviceMemory deviceMemory)
+    {
+        allocator.Free(device, deviceMemory);
+    }
 }
 
 namespace Vnm
@@ -64,7 +74,8 @@ namespace Vnm
         mBufferType = bufferType;
 
         // Create device buffer
-        mBuffer = CreateBuffer(device.GetDevice(), bufferDataSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+        VkBufferUsageFlags usageFlags = bufferType == BufferType::Index ? VK_BUFFER_USAGE_INDEX_BUFFER_BIT : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        mBuffer = CreateBuffer(device.GetDevice(), bufferDataSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | usageFlags);
         mBufferMemory = AllocateDeviceMemory(allocator, device.GetDevice(), mBuffer, Allocator::DeviceLocal);
         vkBindBufferMemory(device.GetDevice(), mBuffer, mBufferMemory, 0);
 
@@ -92,9 +103,19 @@ namespace Vnm
         vkCmdPipelineBarrier(uploadCommandBuffer.GetCommandBuffer(), VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 1, &uploadBarrier, 0, nullptr);
     }
 
-    void Buffer::Destroy()
+    void Buffer::Destroy(Device& device, Allocator& allocator)
     {
+        if (mStagingBuffer != VK_NULL_HANDLE)
+        {
+            FreeDeviceMemory(allocator, device.GetDevice(), mStagingBufferMemory);
+            DestroyBuffer(device.GetDevice(), mStagingBuffer);
+        }
 
+        if (mBuffer != VK_NULL_HANDLE)
+        {
+            FreeDeviceMemory(allocator, device.GetDevice(), mBufferMemory);
+            DestroyBuffer(device.GetDevice(), mStagingBuffer);
+        }
     }
 
     void Buffer::UpdateConstantBuffer(Device& device, const uint8_t* bufferData, size_t bufferDataSize)

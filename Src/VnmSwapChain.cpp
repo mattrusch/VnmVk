@@ -30,30 +30,6 @@ namespace
         *outColorSpace = surfaceFormats.front().colorSpace;
     }
 
-    void CreateFramebuffers(
-        VkDevice device,
-        VkRenderPass renderPass,
-        int width,
-        int height,
-        int count,
-        const VkImageView* imageViews,
-        VkFramebuffer* outFramebuffers)
-    {
-        for (int i = 0; i < count; ++i)
-        {
-            VkFramebufferCreateInfo framebufferCreateInfo = {};
-            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferCreateInfo.attachmentCount = 1;
-            framebufferCreateInfo.pAttachments = &imageViews[i];
-            framebufferCreateInfo.height = height;
-            framebufferCreateInfo.width = width;
-            framebufferCreateInfo.layers = 1;
-            framebufferCreateInfo.renderPass = renderPass;
-
-            vkCreateFramebuffer(device, &framebufferCreateInfo, nullptr, &outFramebuffers[i]);
-        }
-    }
-
     void CreateSwapchainImageViews(
         VkDevice device,
         VkFormat format,
@@ -73,6 +49,17 @@ namespace
             imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
             vkCreateImageView(device, &imageViewCreateInfo, nullptr, &outImageViews[i]);
+        }
+    }
+
+    void DestroySwapchainImageViews(
+        VkDevice device,
+        VkImageView* imageViews,
+        int count)
+    {
+        for (int i = 0; i < count; ++i)
+        {
+            vkDestroyImageView(device, imageViews[i], nullptr);
         }
     }
 
@@ -139,6 +126,13 @@ namespace
 
         return swapchain;
     }
+
+    void DestroySwapChain(
+        VkDevice device, 
+        VkSwapchainKHR swapchain)
+    {
+        vkDestroySwapchainKHR(device, swapchain, nullptr);
+    }
 }
 
 namespace Vnm
@@ -156,5 +150,11 @@ namespace Vnm
 
         mSwapchainImageViews.reserve(backbufferCount);
         CreateSwapchainImageViews(device.GetDevice(), mSwapchainFormat, backbufferCount, mSwapchainImages.data(), mSwapchainImageViews.data());
+    }
+
+    void SwapChain::Destroy(Device& device)
+    {
+        DestroySwapchainImageViews(device.GetDevice(), mSwapchainImageViews.data(), static_cast<int>(mSwapchainImageViews.size()));
+        DestroySwapChain(device.GetDevice(), mSwapchain);
     }
 }

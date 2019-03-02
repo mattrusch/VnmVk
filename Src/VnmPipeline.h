@@ -18,6 +18,8 @@ namespace Vnm
             VkPipelineLayout layout,
             VkShaderModule vertexShader,
             VkShaderModule fragmentShader);
+        
+        void Destroy(Device& device);
 
         VkPipeline& GetPipeline() { return mPipeline; }
 

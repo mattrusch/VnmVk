@@ -42,7 +42,9 @@ namespace Vnm
             const uint8_t* bufferData,
             size_t bufferDataSize);
 
-        void Destroy();
+        void Destroy(
+            Device& device,
+            Allocator& allocator);
 
         void UpdateConstantBuffer(
             Device& device,

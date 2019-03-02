@@ -34,6 +34,10 @@ namespace Vnm
             const uint8_t* imageData,
             size_t imageDataSize);
 
+        void Destroy(
+            Device& device,
+            Allocator& allocator);
+
         VkImage GetImage() const              { return mImage; }
         VkImageView GetImageView() const      { return mImageView; }
         VkDeviceMemory GetImageMemory() const { return mImageMemory; }

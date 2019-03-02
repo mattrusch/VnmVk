@@ -15,4 +15,9 @@ namespace Vnm
 
         vkCreateSampler(device.GetDevice(), &samplerCreateInfo, nullptr, &mSampler);
     }
+
+    void Sampler::Destroy(Device& device)
+    {
+        vkDestroySampler(device.GetDevice(), mSampler, nullptr);
+    }
 }

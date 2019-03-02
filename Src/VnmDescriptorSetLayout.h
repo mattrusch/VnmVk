@@ -12,7 +12,13 @@ namespace Vnm
         DescriptorSetLayout() = default;
         ~DescriptorSetLayout() = default;
 
-        void Create(Device& device, const VkDescriptorSetLayoutBinding* pBindings, uint32_t bindingCount);
+        void Create(
+            Device& device, 
+            const VkDescriptorSetLayoutBinding* pBindings, 
+            uint32_t bindingCount);
+
+        void Destroy(
+            Device& device);
 
         VkDescriptorSetLayout* GetDescriptorSetLayoutPtr() { return &mDescriptorSetLayout; }
 

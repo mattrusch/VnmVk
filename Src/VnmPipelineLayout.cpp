@@ -19,4 +19,9 @@ namespace Vnm
         pipelineLayoutCreateInfo.setLayoutCount = 1;
         vkCreatePipelineLayout(device.GetDevice(), &pipelineLayoutCreateInfo, nullptr, &mPipelineLayout);
     }
+
+    void PipelineLayout::Destroy(Device& device)
+    {
+        vkDestroyPipelineLayout(device.GetDevice(), mPipelineLayout, nullptr);
+    }
 }

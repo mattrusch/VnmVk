@@ -13,7 +13,14 @@ namespace Vnm
         SwapChain() = default;
         ~SwapChain() = default;
 
-        void Create(Device& device, VkSurfaceKHR surface, int width, int height, int backbufferCount);
+        void Create(
+            Device& device, 
+            VkSurfaceKHR surface, 
+            int width, 
+            int height, 
+            int backbufferCount);
+
+        void Destroy(Device& device);
 
         VkSwapchainKHR GetSwapchain() const           { return mSwapchain; }
         const VkSwapchainKHR* GetSwapchainPtr() const { return &mSwapchain; }

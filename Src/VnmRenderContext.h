@@ -14,6 +14,7 @@ namespace Vnm
     {
     public:
         void Init(HWND hwnd, int width, int height);
+        void Shutdown();
         void Run(int width, int height);
         void BeginPass(int width, int height);
         void EndPass();

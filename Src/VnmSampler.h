@@ -13,7 +13,8 @@ namespace Vnm
         ~Sampler() = default;
 
         void Create(Device& device);
-        
+        void Destroy(Device& device);
+
         VkSampler GetSampler() const { return mSampler; }
         VkSampler* GetSamplerPtr()   { return &mSampler; }
 

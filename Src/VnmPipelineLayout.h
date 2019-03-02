@@ -15,6 +15,7 @@ namespace Vnm
 
         void Create(Device& device);
         void Create(Device& device, DescriptorSetLayout& descriptorSetLayout);
+        void Destroy(Device& device);
 
         VkPipelineLayout GetPipelineLayout() const { return mPipelineLayout; }
 

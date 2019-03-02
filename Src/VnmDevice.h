@@ -14,6 +14,7 @@ namespace Vnm
         ~Device() = default;
 
         void Create();
+        void Destroy();
 
         VkInstance GetInstance() const             { return mInstance; }
         VkPhysicalDevice GetPhysicalDevice() const { return mPhysicalDevice; }

@@ -8,4 +8,8 @@ namespace Vnm
     {
         mCommandBuffer = commandBuffer;
     }
+
+    void CommandBuffer::Destroy(Device& device)
+    {
+    }
 }

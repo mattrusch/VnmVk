@@ -12,8 +12,16 @@ namespace Vnm
         Shader() = default;
         ~Shader() = default;
 
-        void Create(Device& device, const uint32_t* compiledShader, size_t size);
-        void CreateFromFile(Device& device, const char* filename);
+        void Create(
+            Device& device, 
+            const uint32_t* compiledShader, 
+            size_t size);
+
+        void CreateFromFile(
+            Device& device, 
+            const char* filename);
+
+        void Destroy(Device& device);
 
         VkShaderModule GetShaderModule() { return mShaderModule; }
 

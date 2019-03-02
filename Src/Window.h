@@ -26,7 +26,11 @@ namespace Vnm
             WNDPROC  mWndProc = DefaultWndProc;
         };
 
-        void Create(HINSTANCE instance, int cmdShow, const WindowDesc& desc);
+        void Create(
+            HINSTANCE instance, 
+            int cmdShow, 
+            const WindowDesc& desc);
+
         void Destroy();
 
         HWND GetHandle() const { return mHandle; }

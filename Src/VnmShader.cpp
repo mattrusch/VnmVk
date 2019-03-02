@@ -21,4 +21,9 @@ namespace Vnm
         Create(device, reinterpret_cast<const uint32_t*>(fileResource->GetData()), fileResource->GetSize());
         FileResource::DestroyFileResource(fileResource);
     }
+
+    void Shader::Destroy(Device& device)
+    {
+        vkDestroyShaderModule(device.GetDevice(), mShaderModule, nullptr);
+    }
 }

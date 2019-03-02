@@ -111,4 +111,9 @@ namespace Vnm
 
         vkCreateGraphicsPipelines(device.GetDevice(), VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &mPipeline);
     }
+
+    void Pipeline::Destroy(Device& device)
+    {
+        vkDestroyPipeline(device.GetDevice(), mPipeline, nullptr);
+    }
 }

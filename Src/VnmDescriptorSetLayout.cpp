@@ -20,4 +20,10 @@ namespace Vnm
 
         vkCreatePipelineLayout(device.GetDevice(), &pipelineLayoutCreateInfo, nullptr, &mPipelineLayout);
     }
+
+    void DescriptorSetLayout::Destroy(Device& device)
+    {
+        vkDestroyPipelineLayout(device.GetDevice(), mPipelineLayout, nullptr);
+        vkDestroyDescriptorSetLayout(device.GetDevice(), mDescriptorSetLayout, nullptr);
+    }
 }

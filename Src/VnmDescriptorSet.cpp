@@ -3,6 +3,11 @@
 #include "VnmDescriptorSet.h"
 #include <cassert>
 
+namespace
+{
+    const uint32_t descriptorSetCount = 1;
+}
+
 namespace Vnm
 {
     void DescriptorSet::Create(Device& device, DescriptorPool& descriptorPool, DescriptorSetLayout& descriptorSetLayout)
@@ -10,7 +15,7 @@ namespace Vnm
         VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
         descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         descriptorSetAllocateInfo.descriptorPool = descriptorPool.GetDescriptorPool();
-        descriptorSetAllocateInfo.descriptorSetCount = 1;
+        descriptorSetAllocateInfo.descriptorSetCount = descriptorSetCount;
         descriptorSetAllocateInfo.pSetLayouts = descriptorSetLayout.GetDescriptorSetLayoutPtr();
 
         vkAllocateDescriptorSets(device.GetDevice(), &descriptorSetAllocateInfo, &mDescriptorSet);
@@ -46,5 +51,10 @@ namespace Vnm
 
         uint32_t numWriteDescriptorSets = sizeof(writeDescriptorSet) / sizeof(writeDescriptorSet[0]);
         vkUpdateDescriptorSets(device.GetDevice(), numWriteDescriptorSets, writeDescriptorSet, 0, nullptr);
+    }
+
+    void DescriptorSet::Destroy(Device& device, DescriptorPool& descriptorPool)
+    {
+        vkFreeDescriptorSets(device.GetDevice(), descriptorPool.GetDescriptorPool(), descriptorSetCount, &mDescriptorSet);
     }
 }
