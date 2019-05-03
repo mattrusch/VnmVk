@@ -127,7 +127,7 @@ namespace Vnm
 
     void ObjMesh::CreateFromFile(const char* filename)
     {
-        std::ifstream objFile("filename");
+        std::ifstream objFile(filename);
         assert(objFile.good());
 
         ScratchMesh scratchMesh;
@@ -167,9 +167,17 @@ namespace Vnm
             for (uint32_t i = 0; i < face.mNumIndices; ++i)
             {
                 Vertex vertex;
-                vertex.mPosition = scratchMesh.mPositions[face.mFaceIndices[i].mAttribIndices[VertexAttrib::Position]];
-                vertex.mTexcoord = scratchMesh.mTexcoords[face.mFaceIndices[i].mAttribIndices[VertexAttrib::Texcoord]];
-                vertex.mNormal = scratchMesh.mNormals[face.mFaceIndices[i].mAttribIndices[VertexAttrib::Normal]];
+
+                int positionIndex = face.mFaceIndices[i].mAttribIndices[VertexAttrib::Position];
+                vertex.mPosition = scratchMesh.mPositions[positionIndex];
+
+                int texcoordIndex = face.mFaceIndices[i].mAttribIndices[VertexAttrib::Texcoord];
+                const Vec3 defaultTexcoord(0.0f, 0.0f, 0.0f);
+                vertex.mTexcoord = texcoordIndex >= 0 ? scratchMesh.mTexcoords[texcoordIndex] : defaultTexcoord;
+
+                int normalIndex = face.mFaceIndices[i].mAttribIndices[VertexAttrib::Normal];
+                const Vec3 defaultNormal(0.0f, 1.0f, 0.0f);
+                vertex.mNormal = normalIndex >= 0 ? scratchMesh.mNormals[normalIndex] : defaultNormal;
 
                 auto it = std::find(vertices.begin(), vertices.end(), vertex);
                 if(it != vertices.end())
@@ -188,7 +196,7 @@ namespace Vnm
         if (scratchMesh.mFaces[0].mNumIndices != 3)
         {
             std::vector<uint32_t> scratchIndices;
-            size_t numFaces = scratchMesh.mFaces.size();
+            size_t numFaces = indices.size();
             for (int i = 0; i < numFaces; i += 4)
             {
                 scratchIndices.emplace_back(indices[i+0]);

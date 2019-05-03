@@ -11,6 +11,7 @@
 #include "VnmDescriptorSetLayout.h"
 #include "VnmDescriptorPool.h"
 #include "VnmSampler.h"
+#include "VnmObjMesh.h"
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 
@@ -131,6 +132,10 @@ namespace Vnm
 
             VkCommandBufferBeginInfo cbBeginInfo = {};
             cbBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+            // Load sample assets
+            ObjMesh objMesh;
+            objMesh.CreateFromFile("box.obj");
 
             // Create buffers for mesh and texture and upload their respective data
             vkBeginCommandBuffer(mRenderContext.GetUploadCommandBuffer().GetCommandBuffer(), &cbBeginInfo);
