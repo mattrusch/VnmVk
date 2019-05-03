@@ -23,7 +23,7 @@
     <ProjectGuid>{077576AB-F8D6-4DAF-8599-D999A7476594}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>VnmVk</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -103,7 +103,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VULKAN_SDK)\include;$(ProjectDir)\..\External\glm-0.9.9.2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VULKAN_SDK)\include;$(ProjectDir)\..\External\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -139,7 +139,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(VULKAN_SDK)\include;$(ProjectDir)\..\External\glm-0.9.9.2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VULKAN_SDK)\include;$(ProjectDir)\..\External\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -160,6 +160,7 @@
     <ClCompile Include="..\Src\VnmDevice.cpp" />
     <ClCompile Include="..\Src\VnmFile.cpp" />
     <ClCompile Include="..\Src\VnmImage.cpp" />
+    <ClCompile Include="..\Src\VnmObjMesh.cpp" />
     <ClCompile Include="..\Src\VnmPipeline.cpp" />
     <ClCompile Include="..\Src\VnmPipelineLayout.cpp" />
     <ClCompile Include="..\Src\VnmRenderContext.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="..\Src\VnmDevice.h" />
     <ClInclude Include="..\Src\VnmFile.h" />
     <ClInclude Include="..\Src\VnmImage.h" />
+    <ClInclude Include="..\Src\VnmObjMesh.h" />
     <ClInclude Include="..\Src\VnmPipeline.h" />
     <ClInclude Include="..\Src\VnmPipelineLayout.h" />
     <ClInclude Include="..\Src\VnmRenderContext.h" />
