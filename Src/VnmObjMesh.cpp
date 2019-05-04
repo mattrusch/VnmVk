@@ -9,39 +9,6 @@
 
 namespace Vnm
 {
-    class Vec3
-    {
-    public:
-        Vec3() = default;
-        Vec3(float x, float y, float z)
-            : mVec{x, y, z}
-        {}
-
-        bool operator ==(const Vec3& rhs) const
-        {
-            return (mVec[0] == rhs.mVec[0]) &&
-                (mVec[1] == rhs.mVec[1]) &&
-                (mVec[2] == rhs.mVec[2]);
-        }
-
-        float mVec[3];
-    };
-
-    class Vertex
-    {
-    public:
-        bool operator ==(const Vertex& rhs) const
-        {
-            return (mPosition == rhs.mPosition) &&
-                (mTexcoord == rhs.mTexcoord) &&
-                (mNormal == rhs.mNormal);
-        }
-
-        Vec3 mPosition;
-        Vec3 mTexcoord;
-        Vec3 mNormal;
-    };
-
     enum VertexAttrib
     {
         Position,
@@ -65,7 +32,7 @@ namespace Vnm
         VertexIndex mFaceIndices[maxIndices];
     };
 
-    static Vec3 ParseVector(std::istringstream& srcStream)
+    static ObjMesh::Vec3 ParseVector(std::istringstream& srcStream)
     {
         float x, y, z;
 
@@ -74,7 +41,7 @@ namespace Vnm
             assert(!"Error parsing vector");
         }
 
-        return Vec3(x, y, z);
+        return ObjMesh::Vec3(x, y, z);
     }
 
     static Face ParseFace(std::istringstream& srcStream)
@@ -119,9 +86,9 @@ namespace Vnm
     class ScratchMesh
     {
     public:
-        std::vector<Vec3> mPositions;
-        std::vector<Vec3> mNormals;
-        std::vector<Vec3> mTexcoords;
+        std::vector<ObjMesh::Vec3> mPositions;
+        std::vector<ObjMesh::Vec3> mNormals;
+        std::vector<ObjMesh::Vec3> mTexcoords;
         std::vector<Face> mFaces;
     };
 
@@ -159,9 +126,6 @@ namespace Vnm
         }
 
         // Build interleaved vertex buffer and matching index buffer
-        std::vector<Vertex> vertices;
-        std::vector<uint32_t> indices;
-
         for (auto& face : scratchMesh.mFaces)
         {
             for (uint32_t i = 0; i < face.mNumIndices; ++i)
@@ -179,41 +143,42 @@ namespace Vnm
                 const Vec3 defaultNormal(0.0f, 1.0f, 0.0f);
                 vertex.mNormal = normalIndex >= 0 ? scratchMesh.mNormals[normalIndex] : defaultNormal;
 
-                auto it = std::find(vertices.begin(), vertices.end(), vertex);
-                if(it != vertices.end())
+                auto it = std::find(mVertices.begin(), mVertices.end(), vertex);
+                if(it != mVertices.end())
                 {
-                    indices.emplace_back(static_cast<uint32_t>(it - vertices.begin()));
+                    mIndices.emplace_back(static_cast<uint32_t>(it - mVertices.begin()));
                 }
                 else
                 {
-                    indices.emplace_back(static_cast<uint32_t>(vertices.size()));
-                    vertices.emplace_back(vertex);
+                    mIndices.emplace_back(static_cast<uint32_t>(mVertices.size()));
+                    mVertices.emplace_back(vertex);
                 }
             }
         }
 
-        // Convert face indices to triangle indices
+        // Convert face indices to triangle indices. Assumes file is either all triangles or all faces
         if (scratchMesh.mFaces[0].mNumIndices != 3)
         {
             std::vector<uint32_t> scratchIndices;
-            size_t numFaces = indices.size();
+            size_t numFaces = mIndices.size();
             for (int i = 0; i < numFaces; i += 4)
             {
-                scratchIndices.emplace_back(indices[i+0]);
-                scratchIndices.emplace_back(indices[i+1]);
-                scratchIndices.emplace_back(indices[i+2]);
+                scratchIndices.emplace_back(mIndices[i+0]);
+                scratchIndices.emplace_back(mIndices[i+1]);
+                scratchIndices.emplace_back(mIndices[i+2]);
 
-                scratchIndices.emplace_back(indices[i+0]);
-                scratchIndices.emplace_back(indices[i+2]);
-                scratchIndices.emplace_back(indices[i+3]);
+                scratchIndices.emplace_back(mIndices[i+0]);
+                scratchIndices.emplace_back(mIndices[i+2]);
+                scratchIndices.emplace_back(mIndices[i+3]);
             }
 
-            indices.swap(scratchIndices);
+            mIndices.swap(scratchIndices);
         }
     }
 
     void ObjMesh::Destroy()
     {
-
+        mVertices.clear();
+        mIndices.clear();
     }
 }

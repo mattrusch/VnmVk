@@ -10,17 +10,21 @@ namespace Vnm
         VkVertexInputBindingDescription vertexInputBindingDescription;
         vertexInputBindingDescription.binding = 0;
         vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        vertexInputBindingDescription.stride = sizeof(float) * 3 + sizeof(float) * 2;
+        vertexInputBindingDescription.stride = sizeof(float) * 3 * 3;
 
-        VkVertexInputAttributeDescription vertexInputAttributeDescription[2] = {};
+        VkVertexInputAttributeDescription vertexInputAttributeDescription[3] = {};
         vertexInputAttributeDescription[0].binding = vertexInputBindingDescription.binding;
         vertexInputAttributeDescription[0].format = VK_FORMAT_R32G32B32_SFLOAT;
         vertexInputAttributeDescription[0].location = 0;
         vertexInputAttributeDescription[0].offset = 0;
         vertexInputAttributeDescription[1].binding = vertexInputBindingDescription.binding;
-        vertexInputAttributeDescription[1].format = VK_FORMAT_R32G32_SFLOAT;
+        vertexInputAttributeDescription[1].format = VK_FORMAT_R32G32B32_SFLOAT;
         vertexInputAttributeDescription[1].location = 1;
         vertexInputAttributeDescription[1].offset = sizeof(float) * 3;
+        vertexInputAttributeDescription[2].binding = vertexInputBindingDescription.binding;
+        vertexInputAttributeDescription[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+        vertexInputAttributeDescription[2].location = 2;
+        vertexInputAttributeDescription[2].offset = sizeof(float) * 3 * 2;
 
         VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateCreateInfo = {};
         pipelineVertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

@@ -10,7 +10,8 @@ layout (binding = 0) uniform PerObjectUbo
 } ubo;
 
 layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec2 inUv;
+layout (location = 1) in vec3 inUv;
+layout (location = 2) in vec3 inNormal;
 layout (location = 0) out vec2 outUv;
 layout (location = 1) out vec4 outColor;
 
@@ -22,6 +23,6 @@ out gl_PerVertex
 void main()
 {
 	gl_Position = ubo.wvp * vec4(inPos, 1);
-	outUv = inUv;
+	outUv = inUv.xy;
 	outColor = inUv.xyxy * 0.5 + 0.5;
 }

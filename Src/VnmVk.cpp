@@ -144,16 +144,16 @@ namespace Vnm
                 mRenderContext.GetDevice(), 
                 mRenderContext.GetAllocator(), 
                 mRenderContext.GetUploadCommandBuffer(), 
-                reinterpret_cast<const uint8_t*>(cubeVertices), 
-                sizeof(cubeVertices), 
+                reinterpret_cast<const uint8_t*>(objMesh.GetVertexData()), 
+                objMesh.GetVertexDataSize(), 
                 Buffer::BufferType::Vertex);
 
             mIndexBuffer.CreateMeshBuffer(
                 mRenderContext.GetDevice(), 
                 mRenderContext.GetAllocator(), 
                 mRenderContext.GetUploadCommandBuffer(), 
-                reinterpret_cast<const uint8_t*>(indices), 
-                sizeof(indices), 
+                reinterpret_cast<const uint8_t*>(objMesh.GetIndexData()), 
+                objMesh.GetIndexDataSize(), 
                 Buffer::BufferType::Index);
 
             mImage.Create2dImage(
