@@ -38,7 +38,7 @@ namespace Vnm
 
         if (!(srcStream >> x >> y >> z))
         {
-            assert(!"Error parsing vector");
+            //assert(!"Error parsing vector");
         }
 
         return ObjMesh::Vec3(x, y, z);
