@@ -70,10 +70,10 @@ namespace Vnm
             mPipelineLayout.Create(mRenderContext.GetDevice(), descriptorSetLayout);
 
             VertexDescription vertexDescription;
-            vertexDescription.AddInputBinding(0, sizeof(float) * 3 * 3, VK_VERTEX_INPUT_RATE_VERTEX);
-            vertexDescription.AddInputAttribute(0, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 0);
-            vertexDescription.AddInputAttribute(1, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 1);
-            vertexDescription.AddInputAttribute(2, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 2);
+            vertexDescription.AddInputBinding({ 0, sizeof(float) * 3 * 3, VK_VERTEX_INPUT_RATE_VERTEX });
+            vertexDescription.AddInputAttribute({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 0 });
+            vertexDescription.AddInputAttribute({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 1 });
+            vertexDescription.AddInputAttribute({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 2 });
 
             mPipeline.Create(mRenderContext.GetDevice(), vertexDescription, mRenderContext.GetRenderPass(), mPipelineLayout.GetPipelineLayout(), mVertexShader.GetShaderModule(), mFragmentShader.GetShaderModule());
 
