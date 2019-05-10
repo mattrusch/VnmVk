@@ -17,64 +17,6 @@
 
 namespace Vnm
 {
-    class Vertex
-    {
-    public:
-        float position[3];
-        float uv[2];
-    };
-
-    const Vertex quadVertices[4] =
-    {
-        {-0.5f, 0.0f,  0.5f, 0.0f, 1.0f},
-        { 0.5f, 0.0f,  0.5,  1.0f, 1.0f},
-        { 0.5f, 0.0f, -0.5f, 1.0f, 0.0f},
-        {-0.5f, 0.0f, -0.5f, 0.0f, 0.0f}
-    };
-
-    const Vertex cubeVertices[24] =
-    {
-        { -0.5f,  0.5f, 0.5f, 0.0f, 1.0f },
-        {  0.5f,  0.5,  0.5f, 1.0f, 1.0f },
-        {  0.5f, -0.5f, 0.5f, 1.0f, 0.0f },
-        { -0.5f, -0.5f, 0.5f, 0.0f, 0.0f },
-
-        { -0.5f,  0.5f, -0.5f, 0.0f, 1.0f },
-        {  0.5f,  0.5,  -0.5f, 1.0f, 1.0f },
-        {  0.5f, -0.5f, -0.5f, 1.0f, 0.0f },
-        { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f },
-
-        { -0.5f, 0.5f,  0.5f, 0.0f, 1.0f },
-        {  0.5f, 0.5f,  0.5,  1.0f, 1.0f },
-        {  0.5f, 0.5f, -0.5f, 1.0f, 0.0f },
-        { -0.5f, 0.5f, -0.5f, 0.0f, 0.0f },
-
-        { -0.5f, -0.5f,  0.5f, 0.0f, 1.0f },
-        {  0.5f, -0.5f,  0.5,  1.0f, 1.0f },
-        {  0.5f, -0.5f, -0.5f, 1.0f, 0.0f },
-        { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f },
-
-        { 0.5f, -0.5f,  0.5f, 0.0f, 1.0f },
-        { 0.5f,  0.5f,  0.5,  1.0f, 1.0f },
-        { 0.5f,  0.5f, -0.5f, 1.0f, 0.0f },
-        { 0.5f, -0.5f, -0.5f, 0.0f, 0.0f },
-
-        { -0.5f, -0.5f,  0.5f, 0.0f, 1.0f },
-        { -0.5f,  0.5f,  0.5,  1.0f, 1.0f },
-        { -0.5f,  0.5f, -0.5f, 1.0f, 0.0f },
-        { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f }
-    };
-
-    const uint32_t indices[36] = 
-    { 
-        0, 1, 2, 2, 3, 0,
-        4, 5, 6, 6, 7, 4,
-        8, 9, 10, 10, 11, 8,
-        12, 13, 14, 14, 15, 12,
-        16, 17, 18, 18, 19, 16,
-        20, 21, 22, 22, 23, 20,
-    };
-
     const uint32_t imageWidth = 2;
     const uint32_t imageHeight = 2;
     const uint32_t imageData[] = { 0xffff0000, 0xff00ff00, 0xff00ffff, 0xff0000ff };
@@ -126,7 +68,14 @@ namespace Vnm
 
             // Create pipeline
             mPipelineLayout.Create(mRenderContext.GetDevice(), descriptorSetLayout);
-            mPipeline.Create(mRenderContext.GetDevice(), mRenderContext.GetRenderPass(), mPipelineLayout.GetPipelineLayout(), mVertexShader.GetShaderModule(), mFragmentShader.GetShaderModule());
+
+            VertexDescription vertexDescription;
+            vertexDescription.AddInputBinding(0, sizeof(float) * 3 * 3, VK_VERTEX_INPUT_RATE_VERTEX);
+            vertexDescription.AddInputAttribute(0, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 0);
+            vertexDescription.AddInputAttribute(1, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 1);
+            vertexDescription.AddInputAttribute(2, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 2);
+
+            mPipeline.Create(mRenderContext.GetDevice(), vertexDescription, mRenderContext.GetRenderPass(), mPipelineLayout.GetPipelineLayout(), mVertexShader.GetShaderModule(), mFragmentShader.GetShaderModule());
 
             vkResetFences(mRenderContext.GetDevice().GetDevice(), 1, &mRenderContext.GetFence(0));
 
@@ -134,8 +83,7 @@ namespace Vnm
             cbBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
             // Load sample assets
-            ObjMesh objMesh;
-            objMesh.CreateFromFile("box.obj");
+            mObjMesh.CreateFromFile("decid_tree.obj");
 
             // Create buffers for mesh and texture and upload their respective data
             vkBeginCommandBuffer(mRenderContext.GetUploadCommandBuffer().GetCommandBuffer(), &cbBeginInfo);
@@ -144,16 +92,16 @@ namespace Vnm
                 mRenderContext.GetDevice(), 
                 mRenderContext.GetAllocator(), 
                 mRenderContext.GetUploadCommandBuffer(), 
-                reinterpret_cast<const uint8_t*>(objMesh.GetVertexData()), 
-                objMesh.GetVertexDataSize(), 
+                reinterpret_cast<const uint8_t*>(mObjMesh.GetVertexData()),
+                mObjMesh.GetVertexDataSize(),
                 Buffer::BufferType::Vertex);
 
             mIndexBuffer.CreateMeshBuffer(
                 mRenderContext.GetDevice(), 
                 mRenderContext.GetAllocator(), 
                 mRenderContext.GetUploadCommandBuffer(), 
-                reinterpret_cast<const uint8_t*>(objMesh.GetIndexData()), 
-                objMesh.GetIndexDataSize(), 
+                reinterpret_cast<const uint8_t*>(mObjMesh.GetIndexData()),
+                mObjMesh.GetIndexDataSize(),
                 Buffer::BufferType::Index);
 
             mImage.Create2dImage(
@@ -202,7 +150,7 @@ namespace Vnm
                 t -= 1.0f;
             }
             glm::mat4 projection = glm::perspective(glm::radians(85.0f), static_cast<float>(mWindow.GetWidth()) / static_cast<float>(mWindow.GetHeight()), 0.1f, 100.0f);
-            glm::mat4 view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+            glm::mat4 view = glm::lookAt(glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
             glm::mat4 model = glm::rotate(glm::mat4(1.0), t * 2.0f * glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f));
             outModelToProjection = projection * view * model;
         }
@@ -234,7 +182,7 @@ namespace Vnm
             vkCmdBindIndexBuffer(curCommandBuffer.GetCommandBuffer(), mIndexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
             vkCmdBindVertexBuffers(curCommandBuffer.GetCommandBuffer(), 0, 1, mVertexBuffer.GetBufferPtr(), &offset);
             vkCmdBindDescriptorSets(curCommandBuffer.GetCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout.GetPipelineLayout(), 0, 1, mDescriptorSet.GetDescriptorSetPtr(), 0, nullptr);
-            vkCmdDrawIndexed(curCommandBuffer.GetCommandBuffer(), 36, 1, 0, 0, 0);
+            vkCmdDrawIndexed(curCommandBuffer.GetCommandBuffer(), static_cast<uint32_t>(mObjMesh.GetNumIndices()), 1, 0, 0, 0);
 
             mRenderContext.EndPass();
         }
@@ -253,6 +201,7 @@ namespace Vnm
         Buffer         mUniformBuffer;
         Image          mImage;
         Sampler        mSampler;
+        ObjMesh        mObjMesh;
     };
 }
 

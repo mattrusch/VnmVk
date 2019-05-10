@@ -3,6 +3,7 @@
 #pragma once
 
 #include "VnmDevice.h"
+#include "VnmVertexDescription.h"
 
 namespace Vnm
 {
@@ -14,6 +15,7 @@ namespace Vnm
 
         void Create(
             Device& device,
+            const VertexDescription& vertexDescription,
             VkRenderPass renderPass,
             VkPipelineLayout layout,
             VkShaderModule vertexShader,
