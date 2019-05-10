@@ -22,7 +22,7 @@ out gl_PerVertex
 
 void main()
 {
-	gl_Position = ubo.wvp * vec4(inPos, 1);
+	gl_Position = ubo.wvp * vec4(inPos, 1.0);
 	outUv = inUv.xy;
-	outColor = inUv.xyxy * 0.5 + 0.5;
+	outColor = vec4(dot(inNormal, normalize(vec3(1.0, 1.0, 1.0)))) * 0.5 + 0.5;
 }

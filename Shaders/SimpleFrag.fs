@@ -13,5 +13,5 @@ layout (binding = 2) uniform sampler colorSampler;
 
 void main()
 {
-	outColor = texture(sampler2D(colorTexture, colorSampler), inUv);
+	outColor = texture(sampler2D(colorTexture, colorSampler), inUv) * inColor;
 }
