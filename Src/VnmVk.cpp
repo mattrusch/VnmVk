@@ -19,7 +19,7 @@ namespace Vnm
 {
     const uint32_t imageWidth = 2;
     const uint32_t imageHeight = 2;
-    const uint32_t imageData[] = { 0xffff0000, 0xff00ff00, 0xff00ffff, 0xff0000ff };
+    const uint32_t imageData[] = { 0xffff7777, 0xff00ff00, 0xff00ffff, 0xff0000ff };
 
     class PerDrawCb
     {
