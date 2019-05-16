@@ -24,7 +24,8 @@ namespace Vnm
     class PerDrawCb
     {
     public:
-        glm::mat4 mWvp;
+        glm::mat4 mWorldViewProj;
+        glm::mat4 mWorld;
     };
 
     class Application
@@ -131,8 +132,8 @@ namespace Vnm
 
             mUniformBuffer.CreateConstantBuffer(mRenderContext.GetDevice(), mRenderContext.GetAllocator(), sizeof(PerDrawCb));
             PerDrawCb constantBufferData;
-            constantBufferData.mWvp = glm::mat4(1.0f);
-            mUniformBuffer.UpdateConstantBuffer(mRenderContext.GetDevice(), reinterpret_cast<uint8_t*>(&constantBufferData.mWvp), sizeof(constantBufferData));
+            constantBufferData.mWorldViewProj = glm::mat4(1.0f);
+            mUniformBuffer.UpdateConstantBuffer(mRenderContext.GetDevice(), reinterpret_cast<uint8_t*>(&constantBufferData.mWorldViewProj), sizeof(constantBufferData));
             mDescriptorSet.Update(mRenderContext.GetDevice(), mUniformBuffer, mImage, mSampler);
         }
 
@@ -141,7 +142,7 @@ namespace Vnm
 
         }
 
-        void CalcModelToProjection(glm::mat4& outModelToProjection)
+        void CalcModelToProjection(glm::mat4& outModelToProjection, glm::mat4& outModelToWorld)
         {
             static float t = 0.0f;
             t += 0.001f;
@@ -150,16 +151,17 @@ namespace Vnm
                 t -= 1.0f;
             }
             glm::mat4 projection = glm::perspective(glm::radians(85.0f), static_cast<float>(mWindow.GetWidth()) / static_cast<float>(mWindow.GetHeight()), 0.1f, 100.0f);
-            glm::mat4 view = glm::lookAt(glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+            glm::mat4 view = glm::lookAt(glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
             glm::mat4 model = glm::rotate(glm::mat4(1.0), t * 2.0f * glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f));
             outModelToProjection = projection * view * model;
+            outModelToWorld = model;
         }
 
         void Mainloop()
         {
             PerDrawCb constantBufferData;
-            CalcModelToProjection(constantBufferData.mWvp);
-            mUniformBuffer.UpdateConstantBuffer(mRenderContext.GetDevice(), reinterpret_cast<uint8_t*>(&constantBufferData.mWvp), sizeof(constantBufferData));
+            CalcModelToProjection(constantBufferData.mWorldViewProj, constantBufferData.mWorld);
+            mUniformBuffer.UpdateConstantBuffer(mRenderContext.GetDevice(), reinterpret_cast<uint8_t*>(&constantBufferData.mWorldViewProj), sizeof(constantBufferData));
 
             mRenderContext.BeginPass(mWindow.GetWidth(), mWindow.GetHeight());
 

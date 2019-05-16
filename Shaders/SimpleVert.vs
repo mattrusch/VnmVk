@@ -7,6 +7,7 @@
 layout (binding = 0) uniform PerObjectUbo
 {
 	mat4 wvp;
+	mat4 world;
 } ubo;
 
 layout (location = 0) in vec3 inPos;
@@ -24,5 +25,6 @@ void main()
 {
 	gl_Position = ubo.wvp * vec4(inPos, 1.0);
 	outUv = inUv.xy;
-	outColor = vec4(dot(inNormal, normalize(vec3(1.0, 1.0, 1.0)))) * 0.5 + 0.5;
+	vec3 worldNormal = (ubo.world * vec4(inNormal, 0.0)).xyz;
+	outColor = vec4(dot(worldNormal, normalize(vec3(1.0, 1.0, -0.5)))) * 0.5 + 0.5;
 }
