@@ -1,6 +1,7 @@
-// VnmAppRenderObj.cpp
+// VnmAppRenderVnmMesh.cpp
 
-#include "VnmAppRenderObj.h"
+#include "VnmAppRenderVnmMesh.h"
+
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 
@@ -17,7 +18,7 @@ namespace Vnm
         glm::mat4 mWorld;
     };
 
-    void AppRenderObj::Startup()
+    void AppRenderVnmMesh::Startup()
     {
         // Device object initialization
         mVertexShader.CreateFromFile(mRenderContext.GetDevice(), "SimpleVert.spv");
@@ -50,10 +51,11 @@ namespace Vnm
         mPipelineLayout.Create(mRenderContext.GetDevice(), descriptorSetLayout);
 
         VertexDescription vertexDescription;
-        vertexDescription.AddInputBinding({ 0, sizeof(float) * 3 * 3, VK_VERTEX_INPUT_RATE_VERTEX });
-        vertexDescription.AddInputAttribute({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 0 });
-        vertexDescription.AddInputAttribute({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 1 });
-        vertexDescription.AddInputAttribute({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 2 });
+        vertexDescription.AddInputBinding({ 0, sizeof(float) * 12, VK_VERTEX_INPUT_RATE_VERTEX });
+        vertexDescription.AddInputAttribute({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 0 }); // Position
+        vertexDescription.AddInputAttribute({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 * 1 }); // Normal
+        vertexDescription.AddInputAttribute({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 4 * 2 }); // Tangent (w = handedness)
+        vertexDescription.AddInputAttribute({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 2 * 2 }); // Uv
 
         mPipeline.Create(mRenderContext.GetDevice(), vertexDescription, mRenderContext.GetRenderPass(), mPipelineLayout.GetPipelineLayout(), mVertexShader.GetShaderModule(), mFragmentShader.GetShaderModule());
 
@@ -63,7 +65,7 @@ namespace Vnm
         cbBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
         // Load sample assets
-        mObjMesh.CreateFromFile("decid_tree.obj");
+        mMesh.CreateFromFile("tree2.vnm");
 
         // Create buffers for mesh and texture and upload their respective data
         vkBeginCommandBuffer(mRenderContext.GetUploadCommandBuffer().GetCommandBuffer(), &cbBeginInfo);
@@ -72,16 +74,16 @@ namespace Vnm
             mRenderContext.GetDevice(),
             mRenderContext.GetAllocator(),
             mRenderContext.GetUploadCommandBuffer(),
-            reinterpret_cast<const uint8_t*>(mObjMesh.GetVertexData()),
-            mObjMesh.GetVertexDataSize(),
+            reinterpret_cast<const uint8_t*>(mMesh.GetVertexData()),
+            mMesh.GetVertexDataSize(),
             Buffer::BufferType::Vertex);
 
         mIndexBuffer.CreateMeshBuffer(
             mRenderContext.GetDevice(),
             mRenderContext.GetAllocator(),
             mRenderContext.GetUploadCommandBuffer(),
-            reinterpret_cast<const uint8_t*>(mObjMesh.GetIndexData()),
-            mObjMesh.GetIndexDataSize(),
+            reinterpret_cast<const uint8_t*>(mMesh.GetIndexData()),
+            mMesh.GetIndexDataSize(),
             Buffer::BufferType::Index);
 
         mImage.Create2dImage(
@@ -125,13 +127,13 @@ namespace Vnm
             t -= 1.0f;
         }
         glm::mat4 projection = glm::perspective(glm::radians(85.0f), aspect, 0.1f, 100.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-        glm::mat4 model = glm::rotate(glm::mat4(1.0), t * 2.0f * glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 view = glm::lookAt(glm::vec3(15.0f, 15.0f, 15.0f), glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+        glm::mat4 model = glm::rotate(glm::mat4(1.0), t * 2.0f * glm::pi<float>(), glm::vec3(0.0f, 0.0f, 1.0f));
         outModelToProjection = projection * view * model;
         outModelToWorld = model;
     }
 
-    void AppRenderObj::Mainloop()
+    void AppRenderVnmMesh::Mainloop()
     {
         PerDrawCb constantBufferData;
         CalcModelToProjection(static_cast<float>(mWindow.GetWidth()) / static_cast<float>(mWindow.GetHeight()), constantBufferData.mWorldViewProj, constantBufferData.mWorld);
@@ -158,11 +160,20 @@ namespace Vnm
         vkCmdBindIndexBuffer(curCommandBuffer.GetCommandBuffer(), mIndexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindVertexBuffers(curCommandBuffer.GetCommandBuffer(), 0, 1, mVertexBuffer.GetBufferPtr(), &offset);
         vkCmdBindDescriptorSets(curCommandBuffer.GetCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout.GetPipelineLayout(), 0, 1, mDescriptorSet.GetDescriptorSetPtr(), 0, nullptr);
-        vkCmdDrawIndexed(curCommandBuffer.GetCommandBuffer(), static_cast<uint32_t>(mObjMesh.GetNumIndices()), 1, 0, 0, 0);
+
+        uint32_t vertexOffset = 0;
+        int32_t indexOffset = 0;
+        for (size_t i = 0, size = mMesh.GetNumSubmeshes(); i < size; ++i)
+        {
+            const SubmeshDesc* submeshDesc = mMesh.GetSubmeshData() + i;
+            vkCmdDrawIndexed(curCommandBuffer.GetCommandBuffer(), submeshDesc->mNumIndices, 1, indexOffset, vertexOffset, 0);
+            indexOffset += submeshDesc->mNumIndices;
+            vertexOffset += submeshDesc->mNumVertices;
+        }
 
         mRenderContext.EndPass();
     }
 
-    void AppRenderObj::Shutdown()
+    void AppRenderVnmMesh::Shutdown()
     {}
 }
