@@ -154,6 +154,7 @@
     <ClCompile Include="..\Src\VnmAllocator.cpp" />
     <ClCompile Include="..\Src\VnmApplication.cpp" />
     <ClCompile Include="..\Src\VnmAppRenderObj.cpp" />
+    <ClCompile Include="..\Src\VnmAppRenderVnmMesh.cpp" />
     <ClCompile Include="..\Src\VnmBuffer.cpp" />
     <ClCompile Include="..\Src\VnmCommandBuffer.cpp" />
     <ClCompile Include="..\Src\VnmDescriptorPool.cpp" />
@@ -162,6 +163,7 @@
     <ClCompile Include="..\Src\VnmDevice.cpp" />
     <ClCompile Include="..\Src\VnmFile.cpp" />
     <ClCompile Include="..\Src\VnmImage.cpp" />
+    <ClCompile Include="..\Src\VnmMesh.cpp" />
     <ClCompile Include="..\Src\VnmObjMesh.cpp" />
     <ClCompile Include="..\Src\VnmPipeline.cpp" />
     <ClCompile Include="..\Src\VnmPipelineLayout.cpp" />
@@ -177,6 +179,7 @@
     <ClInclude Include="..\Src\VnmAllocator.h" />
     <ClInclude Include="..\Src\VnmApplication.h" />
     <ClInclude Include="..\Src\VnmAppRenderObj.h" />
+    <ClInclude Include="..\Src\VnmAppRenderVnmMesh.h" />
     <ClInclude Include="..\Src\VnmBuffer.h" />
     <ClInclude Include="..\Src\VnmCommandBuffer.h" />
     <ClInclude Include="..\Src\VnmDescriptorPool.h" />
@@ -185,6 +188,7 @@
     <ClInclude Include="..\Src\VnmDevice.h" />
     <ClInclude Include="..\Src\VnmFile.h" />
     <ClInclude Include="..\Src\VnmImage.h" />
+    <ClInclude Include="..\Src\VnmMesh.h" />
     <ClInclude Include="..\Src\VnmObjMesh.h" />
     <ClInclude Include="..\Src\VnmPipeline.h" />
     <ClInclude Include="..\Src\VnmPipelineLayout.h" />
