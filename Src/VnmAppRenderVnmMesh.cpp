@@ -52,10 +52,10 @@ namespace Vnm
 
         VertexDescription vertexDescription;
         vertexDescription.AddInputBinding({ 0, sizeof(float) * 12, VK_VERTEX_INPUT_RATE_VERTEX });
-        vertexDescription.AddInputAttribute({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0 });                  // Position
-        vertexDescription.AddInputAttribute({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 });  // Normal
-        vertexDescription.AddInputAttribute({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 6 });  // Tangent (w = handedness)
-        vertexDescription.AddInputAttribute({ 3, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 10 }); // Uv
+        vertexDescription.AddInputAttribute({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0 });                    // Position
+        vertexDescription.AddInputAttribute({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3 });    // Normal
+        vertexDescription.AddInputAttribute({ 2, 0, VK_FORMAT_R32G32B32A32_SFLOAT, sizeof(float) * 6 }); // Tangent (w = handedness)
+        vertexDescription.AddInputAttribute({ 3, 0, VK_FORMAT_R32G32_SFLOAT, sizeof(float) * 10 });      // Uv
 
         mPipeline.Create(mRenderContext.GetDevice(), vertexDescription, mRenderContext.GetRenderPass(), mPipelineLayout.GetPipelineLayout(), mVertexShader.GetShaderModule(), mFragmentShader.GetShaderModule());
 
