@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Src\Window.cpp">
+      <Filter>Win</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmAllocator.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmBuffer.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmCommandBuffer.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmDescriptorPool.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmDescriptorSet.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmDescriptorSetLayout.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmDevice.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmImage.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmObjMesh.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmPipeline.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmPipelineLayout.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmRenderContext.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmSampler.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmShader.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmSwapChain.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmVertexDescription.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmVk.cpp">
+      <Filter>Vnm\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmFile.cpp">
+      <Filter>Vnm\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmApplication.cpp">
+      <Filter>Vnm\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmAppRenderObj.cpp">
+      <Filter>Vnm\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmAppRenderVnmMesh.cpp">
+      <Filter>Vnm\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmMesh.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Src\Window.h">
+      <Filter>Win</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmAllocator.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmBuffer.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmCommandBuffer.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmDescriptorPool.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmDescriptorSet.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmDescriptorSetLayout.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmDevice.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmImage.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmObjMesh.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmPipeline.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmPipelineLayout.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmRenderContext.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmSampler.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmShader.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmSwapChain.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmVertexDescription.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmFile.h">
+      <Filter>Vnm\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmApplication.h">
+      <Filter>Vnm\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmAppRenderObj.h">
+      <Filter>Vnm\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmAppRenderVnmMesh.h">
+      <Filter>Vnm\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmMesh.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shaders\SimpleVert.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\SimpleFrag.fs">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Vnm">
+      <UniqueIdentifier>{4b815e0a-431e-43e2-ba01-3ad393ffca23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Win">
+      <UniqueIdentifier>{615b4d43-5bf3-4fe1-9045-bee25c7304cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{d35bb3a8-0fc7-435b-b6fb-c3b57bcacc88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Vnm\Render">
+      <UniqueIdentifier>{661d8dc6-00f3-4e2b-b45b-cf69c7eb14b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Vnm\Application">
+      <UniqueIdentifier>{5d16daf2-f8e1-4a97-b23c-eb19bf55916b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Vnm\System">
+      <UniqueIdentifier>{d517de78-c397-4351-852f-9ef9442c84a1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
