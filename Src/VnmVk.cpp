@@ -4,6 +4,7 @@
 #include "crtdbg.h"
 #include "VnmAppRenderObj.h"
 #include "VnmAppRenderVnmMesh.h"
+#include "VnmAppNature.h"
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
@@ -12,7 +13,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     _CrtSetDbgFlag(crtDbgFlag);
 
     //Vnm::AppRenderObj application;
-    Vnm::AppRenderVnmMesh application;
+    //Vnm::AppRenderVnmMesh application;
+    Vnm::AppNature application;
     application.Create(hInstance, nCmdShow);
     application.Startup();
 

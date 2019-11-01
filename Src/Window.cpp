@@ -2,9 +2,14 @@
 
 #include "Window.h"
 
+static inline bool RangeContaninsValue(int value, int start, int end)
+{
+    return(value >= start && value <= end);
+}
+
 LRESULT CALLBACK DefaultWndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
-    void* pWindow = (void*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    Vnm::Window* window = (Vnm::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
     switch (message)
     {
@@ -21,6 +26,76 @@ LRESULT CALLBACK DefaultWndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM l
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
+    case WM_LBUTTONDOWN:
+    {
+        Vnm::MouseState mouseState = window->GetMouseState();
+        mouseState.mLeftButtonDown = true;
+        mouseState.mMouseX = LOWORD(lparam);
+        mouseState.mMouseY = HIWORD(lparam);
+        window->SetMouseState(mouseState);
+        break;
+    }
+    case WM_LBUTTONUP:
+    {
+        Vnm::MouseState mouseState = window->GetMouseState();
+        mouseState.mLeftButtonDown = false;
+        mouseState.mMouseX = LOWORD(lparam);
+        mouseState.mMouseY = HIWORD(lparam);
+        window->SetMouseState(mouseState);
+        break;
+    }
+    case WM_MBUTTONDOWN:
+    {
+        Vnm::MouseState mouseState = window->GetMouseState();
+        mouseState.mMiddleButtonDown = true;
+        mouseState.mMouseX = LOWORD(lparam);
+        mouseState.mMouseY = HIWORD(lparam);
+        window->SetMouseState(mouseState);
+        break;
+    }
+    case WM_MBUTTONUP:
+    {
+        Vnm::MouseState mouseState = window->GetMouseState();
+        mouseState.mMiddleButtonDown = false;
+        mouseState.mMouseX = LOWORD(lparam);
+        mouseState.mMouseY = HIWORD(lparam);
+        window->SetMouseState(mouseState);
+        break;
+    }
+    case WM_RBUTTONDOWN:
+    {
+        Vnm::MouseState mouseState = window->GetMouseState();
+        mouseState.mRightButtonDown = true;
+        mouseState.mMouseX = LOWORD(lparam);
+        mouseState.mMouseY = HIWORD(lparam);
+        window->SetMouseState(mouseState);
+        break;
+    }
+    case WM_RBUTTONUP:
+    {
+        Vnm::MouseState mouseState = window->GetMouseState();
+        mouseState.mRightButtonDown = false;
+        mouseState.mMouseX = LOWORD(lparam);
+        mouseState.mMouseY = HIWORD(lparam);
+        window->SetMouseState(mouseState);
+        break;
+    }
+    case WM_MOUSEMOVE:
+    {
+        Vnm::MouseState mouseState = window->GetMouseState();
+        SetCapture(hwnd);
+        mouseState.mMouseX = LOWORD(lparam);
+        mouseState.mMouseY = HIWORD(lparam);
+        if (!RangeContaninsValue(mouseState.mMouseX, 0, window->GetWidth()) || !RangeContaninsValue(mouseState.mMouseY, 0, window->GetHeight()))
+        {
+            mouseState.mLeftButtonDown = false;
+            mouseState.mMiddleButtonDown = false;
+            mouseState.mRightButtonDown = false;
+            ReleaseCapture();
+        }
+        window->SetMouseState(mouseState);
+        break;
+    }
     default:
         break;
     }

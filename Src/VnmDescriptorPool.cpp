@@ -16,7 +16,7 @@ namespace Vnm
         descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         descriptorPoolCreateInfo.poolSizeCount = 2;
         descriptorPoolCreateInfo.pPoolSizes = descriptorPoolSize;
-        descriptorPoolCreateInfo.maxSets = 1;
+        descriptorPoolCreateInfo.maxSets = 16;
 
         vkCreateDescriptorPool(device.GetDevice(), &descriptorPoolCreateInfo, nullptr, &mDescriptorPool);
     }

@@ -9,7 +9,8 @@ namespace
         VkImageCreateInfo& dstVkImageCreateInfo, 
         VkFormat format, 
         uint32_t width, 
-        uint32_t height, 
+        uint32_t height,
+        uint32_t numMipLevels,
         VkImageUsageFlags usage, 
         VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT,
         VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL)
@@ -21,7 +22,7 @@ namespace
         dstVkImageCreateInfo.extent.width = width;
         dstVkImageCreateInfo.extent.height = height;
         dstVkImageCreateInfo.extent.depth = 1;
-        dstVkImageCreateInfo.mipLevels = 1;
+        dstVkImageCreateInfo.mipLevels = numMipLevels;
         dstVkImageCreateInfo.arrayLayers = 1;
         dstVkImageCreateInfo.samples = samples;
         dstVkImageCreateInfo.tiling = tiling;
@@ -111,7 +112,7 @@ namespace Vnm
         assert(format == VK_FORMAT_D16_UNORM);
 
         VkImageCreateInfo imageCreateInfo = {};
-        InitVkImageCreateInfo(imageCreateInfo, format, width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+        InitVkImageCreateInfo(imageCreateInfo, format, width, height, 1, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 
         vkCreateImage(device.GetDevice(), &imageCreateInfo, nullptr, &mImage);
 
@@ -158,7 +159,7 @@ namespace Vnm
 
         // Create device image
         VkImageCreateInfo imageCreateInfo;
-        InitVkImageCreateInfo(imageCreateInfo, format, width, height, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+        InitVkImageCreateInfo(imageCreateInfo, format, width, height, numMipLevels, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
         vkCreateImage(device.GetDevice(), &imageCreateInfo, nullptr, &mImage);
 
         VkMemoryRequirements memoryRequirements;

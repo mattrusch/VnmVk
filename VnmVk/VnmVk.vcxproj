@@ -153,9 +153,11 @@
   <ItemGroup>
     <ClCompile Include="..\Src\VnmAllocator.cpp" />
     <ClCompile Include="..\Src\VnmApplication.cpp" />
+    <ClCompile Include="..\Src\VnmAppNature.cpp" />
     <ClCompile Include="..\Src\VnmAppRenderObj.cpp" />
     <ClCompile Include="..\Src\VnmAppRenderVnmMesh.cpp" />
     <ClCompile Include="..\Src\VnmBuffer.cpp" />
+    <ClCompile Include="..\Src\VnmCamera.cpp" />
     <ClCompile Include="..\Src\VnmCommandBuffer.cpp" />
     <ClCompile Include="..\Src\VnmDescriptorPool.cpp" />
     <ClCompile Include="..\Src\VnmDescriptorSet.cpp" />
@@ -171,6 +173,7 @@
     <ClCompile Include="..\Src\VnmSampler.cpp" />
     <ClCompile Include="..\Src\VnmShader.cpp" />
     <ClCompile Include="..\Src\VnmSwapChain.cpp" />
+    <ClCompile Include="..\Src\VnmTgaImage.cpp" />
     <ClCompile Include="..\Src\VnmVertexDescription.cpp" />
     <ClCompile Include="..\Src\VnmVk.cpp" />
     <ClCompile Include="..\Src\Window.cpp" />
@@ -178,9 +181,11 @@
   <ItemGroup>
     <ClInclude Include="..\Src\VnmAllocator.h" />
     <ClInclude Include="..\Src\VnmApplication.h" />
+    <ClInclude Include="..\Src\VnmAppNature.h" />
     <ClInclude Include="..\Src\VnmAppRenderObj.h" />
     <ClInclude Include="..\Src\VnmAppRenderVnmMesh.h" />
     <ClInclude Include="..\Src\VnmBuffer.h" />
+    <ClInclude Include="..\Src\VnmCamera.h" />
     <ClInclude Include="..\Src\VnmCommandBuffer.h" />
     <ClInclude Include="..\Src\VnmDescriptorPool.h" />
     <ClInclude Include="..\Src\VnmDescriptorSet.h" />
@@ -196,6 +201,7 @@
     <ClInclude Include="..\Src\VnmSampler.h" />
     <ClInclude Include="..\Src\VnmShader.h" />
     <ClInclude Include="..\Src\VnmSwapChain.h" />
+    <ClInclude Include="..\Src\VnmTgaImage.h" />
     <ClInclude Include="..\Src\VnmVertexDescription.h" />
     <ClInclude Include="..\Src\Window.h" />
   </ItemGroup>

@@ -1,6 +1,8 @@
+// VnmAppNature.cpp
+
 // VnmAppRenderVnmMesh.cpp
 
-#include "VnmAppRenderVnmMesh.h"
+#include "VnmAppNature.h"
 #include "VnmFile.h"
 #include "VnmTgaImage.h"
 
@@ -9,10 +11,6 @@
 
 namespace Vnm
 {
-    const uint32_t imageWidth = 2;
-    const uint32_t imageHeight = 2;
-    const uint32_t imageData[] = { 0xffff7777, 0xff00ff00, 0xff00ffff, 0xff0000ff };
-
     class PerDrawCb
     {
     public:
@@ -20,8 +18,46 @@ namespace Vnm
         glm::mat4 mWorld;
     };
 
-    void AppRenderVnmMesh::Startup()
+    static void CreateImageFromFile(Image& dstImage, const char* filename, RenderContext& renderContext)
     {
+        FileResource* tgaFileResource = FileResource::LoadFileResource(filename);
+        TgaImage tgaImage;
+        tgaImage.ParseData(tgaFileResource->GetData());
+
+        VkCommandBufferBeginInfo cbBeginInfo = {};
+        cbBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        vkBeginCommandBuffer(renderContext.GetUploadCommandBuffer().GetCommandBuffer(), &cbBeginInfo);
+
+        dstImage.Create2dImage(
+            renderContext.GetDevice(),
+            renderContext.GetAllocator(),
+            renderContext.GetUploadCommandBuffer(),
+            tgaImage.GetWidth(),
+            tgaImage.GetHeight(),
+            1,
+            VK_FORMAT_B8G8R8A8_UNORM,
+            0,
+            tgaImage.GetImageData(),
+            tgaImage.GetSize());
+
+        vkEndCommandBuffer(renderContext.GetUploadCommandBuffer().GetCommandBuffer());
+
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = renderContext.GetUploadCommandBuffer().GetCommandBufferPtr();
+        vkQueueSubmit(renderContext.GetDevice().GetQueue(), 1, &submitInfo, renderContext.GetFence(0));
+
+        vkWaitForFences(renderContext.GetDevice().GetDevice(), 1, &renderContext.GetFence(0), VK_TRUE, UINT64_MAX);
+
+        FileResource::DestroyFileResource(tgaFileResource);
+    }
+
+    void AppNature::Startup()
+    {
+        mCamera.SetPosition(glm::vec3(1.0f, 1.0f, 1.0f));
+        mCamera.SetTarget(glm::vec3(0.0f, 0.0f, 0.75f));
+
         // Device object initialization
         mVertexShader.CreateFromFile(mRenderContext.GetDevice(), "SimpleVert.spv");
         mFragmentShader.CreateFromFile(mRenderContext.GetDevice(), "SimpleFrag.spv");
@@ -88,22 +124,6 @@ namespace Vnm
             mMesh.GetIndexDataSize(),
             Buffer::BufferType::Index);
 
-        FileResource* tgaFileResource = FileResource::LoadFileResource("grass_green_01_basecolor.tga");
-        TgaImage tgaImage;
-        tgaImage.ParseData(tgaFileResource->GetData());
-        
-        mImage.Create2dImage(
-            mRenderContext.GetDevice(),
-            mRenderContext.GetAllocator(),
-            mRenderContext.GetUploadCommandBuffer(),
-            tgaImage.GetWidth(),
-            tgaImage.GetHeight(),
-            1,
-            VK_FORMAT_B8G8R8A8_UNORM,
-            0,
-            tgaImage.GetImageData(),
-            tgaImage.GetSize());
-
         vkEndCommandBuffer(mRenderContext.GetUploadCommandBuffer().GetCommandBuffer());
 
         VkSubmitInfo submitInfo = {};
@@ -114,19 +134,22 @@ namespace Vnm
 
         vkWaitForFences(mRenderContext.GetDevice().GetDevice(), 1, &mRenderContext.GetFence(0), VK_TRUE, UINT64_MAX);
 
-        FileResource::DestroyFileResource(tgaFileResource);
+        CreateImageFromFile(mImage[0], "grass_green_01_basecolor.tga", mRenderContext);
+        CreateImageFromFile(mImage[1], "bad_water.tga", mRenderContext);
 
         mDescriptorPool.Create(mRenderContext.GetDevice());
-        mDescriptorSet.Create(mRenderContext.GetDevice(), mDescriptorPool, descriptorSetLayout);
+        mDescriptorSet[0].Create(mRenderContext.GetDevice(), mDescriptorPool, descriptorSetLayout);
+        mDescriptorSet[1].Create(mRenderContext.GetDevice(), mDescriptorPool, descriptorSetLayout);
 
         mUniformBuffer.CreateConstantBuffer(mRenderContext.GetDevice(), mRenderContext.GetAllocator(), sizeof(PerDrawCb));
         PerDrawCb constantBufferData;
         constantBufferData.mWorldViewProj = glm::mat4(1.0f);
         mUniformBuffer.UpdateConstantBuffer(mRenderContext.GetDevice(), reinterpret_cast<uint8_t*>(&constantBufferData.mWorldViewProj), sizeof(constantBufferData));
-        mDescriptorSet.Update(mRenderContext.GetDevice(), mUniformBuffer, mImage, mSampler);
+        mDescriptorSet[0].Update(mRenderContext.GetDevice(), mUniformBuffer, mImage[0], mSampler);
+        mDescriptorSet[1].Update(mRenderContext.GetDevice(), mUniformBuffer, mImage[1], mSampler);
     }
 
-    static void CalcModelToProjection(float aspect, glm::mat4& outModelToProjection, glm::mat4& outModelToWorld)
+    static void CalcModelToProjection(float aspect, const ThirdPersonCamera& camera, glm::mat4& outModelToProjection, glm::mat4& outModelToWorld)
     {
         static float t = 0.0f;
         t += 0.001f;
@@ -135,16 +158,35 @@ namespace Vnm
             t -= 1.0f;
         }
         glm::mat4 projection = glm::perspective(glm::radians(55.0f), aspect, 0.1f, 100.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.75f), glm::vec3(0.0f, 0.0f, -1.0f));
-        glm::mat4 model = glm::rotate(glm::mat4(1.0), t * 2.0f * glm::pi<float>(), glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::mat4 view = camera.GetLookAt();
+        glm::mat4 model = glm::mat4(1.0f);
         outModelToProjection = projection * view * model;
         outModelToWorld = model;
     }
 
-    void AppRenderVnmMesh::Mainloop()
+    static void UpdateCamera(const MouseState& mouseState, ThirdPersonCamera& camera)
     {
+        static int prevX = mouseState.mMouseX;
+        static int prevY = mouseState.mMouseY;
+
+        if (mouseState.mLeftButtonDown)
+        {
+            const float kRotationSpeedFactor = 0.001f;
+            float deltaY = ((float)mouseState.mMouseY - (float)prevY) * kRotationSpeedFactor;
+            float deltaX = ((float)mouseState.mMouseX - (float)prevX) * kRotationSpeedFactor;
+            camera.Orbit(-deltaY, deltaX);
+        }
+
+        prevX = mouseState.mMouseX;
+        prevY = mouseState.mMouseY;
+    }
+
+    void AppNature::Mainloop()
+    {
+        UpdateCamera(mWindow.GetMouseState(), mCamera);
+
         PerDrawCb constantBufferData;
-        CalcModelToProjection(static_cast<float>(mWindow.GetWidth()) / static_cast<float>(mWindow.GetHeight()), constantBufferData.mWorldViewProj, constantBufferData.mWorld);
+        CalcModelToProjection(static_cast<float>(mWindow.GetWidth()) / static_cast<float>(mWindow.GetHeight()), mCamera, constantBufferData.mWorldViewProj, constantBufferData.mWorld);
         mUniformBuffer.UpdateConstantBuffer(mRenderContext.GetDevice(), reinterpret_cast<uint8_t*>(&constantBufferData.mWorldViewProj), sizeof(constantBufferData));
 
         mRenderContext.BeginPass(mWindow.GetWidth(), mWindow.GetHeight());
@@ -167,12 +209,13 @@ namespace Vnm
         VkDeviceSize offset = 0;
         vkCmdBindIndexBuffer(curCommandBuffer.GetCommandBuffer(), mIndexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindVertexBuffers(curCommandBuffer.GetCommandBuffer(), 0, 1, mVertexBuffer.GetBufferPtr(), &offset);
-        vkCmdBindDescriptorSets(curCommandBuffer.GetCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout.GetPipelineLayout(), 0, 1, mDescriptorSet.GetDescriptorSetPtr(), 0, nullptr);
 
         uint32_t vertexOffset = 0;
         int32_t indexOffset = 0;
         for (size_t i = 0, size = mMesh.GetNumSubmeshes(); i < size; ++i)
         {
+            vkCmdBindDescriptorSets(curCommandBuffer.GetCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout.GetPipelineLayout(), 0, 1, mDescriptorSet[i].GetDescriptorSetPtr(), 0, nullptr);
+
             const SubmeshDesc* submeshDesc = mMesh.GetSubmeshData() + i;
             vkCmdDrawIndexed(curCommandBuffer.GetCommandBuffer(), submeshDesc->mNumIndices, 1, indexOffset, vertexOffset, 0);
             indexOffset += submeshDesc->mNumIndices;
@@ -182,6 +225,6 @@ namespace Vnm
         mRenderContext.EndPass();
     }
 
-    void AppRenderVnmMesh::Shutdown()
+    void AppNature::Shutdown()
     {}
 }

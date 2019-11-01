@@ -70,6 +70,15 @@
     <ClCompile Include="..\Src\VnmMesh.cpp">
       <Filter>Vnm\Render</Filter>
     </ClCompile>
+    <ClCompile Include="..\Src\VnmTgaImage.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmAppNature.cpp">
+      <Filter>Vnm\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\VnmCamera.cpp">
+      <Filter>Vnm\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Src\Window.h">
@@ -136,6 +145,15 @@
       <Filter>Vnm\Application</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\VnmMesh.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmTgaImage.h">
+      <Filter>Vnm\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmAppNature.h">
+      <Filter>Vnm\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\VnmCamera.h">
       <Filter>Vnm\Render</Filter>
     </ClInclude>
   </ItemGroup>
