@@ -42,6 +42,17 @@ namespace Vnm
             const uint8_t* bufferData,
             size_t bufferDataSize);
 
+        void CreateStagingBuffer(
+            Device& device,
+            Allocator& allocator,
+            size_t bufferSize);
+
+        void UpdateStagingBuffer(
+            Device& device,
+            size_t offset,
+            const uint8_t* bufferData,
+            size_t bufferDataSize);
+
         void Destroy(
             Device& device,
             Allocator& allocator);

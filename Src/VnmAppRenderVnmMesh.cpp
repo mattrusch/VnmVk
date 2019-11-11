@@ -92,6 +92,8 @@ namespace Vnm
         TgaImage tgaImage;
         tgaImage.ParseData(tgaFileResource->GetData());
         
+        const uint8_t* mipData = tgaImage.GetImageData();
+        size_t mipSize = tgaImage.GetSize();
         mImage.Create2dImage(
             mRenderContext.GetDevice(),
             mRenderContext.GetAllocator(),
@@ -101,8 +103,8 @@ namespace Vnm
             1,
             VK_FORMAT_B8G8R8A8_UNORM,
             0,
-            tgaImage.GetImageData(),
-            tgaImage.GetSize());
+            &mipData,
+            &mipSize);
 
         vkEndCommandBuffer(mRenderContext.GetUploadCommandBuffer().GetCommandBuffer());
 

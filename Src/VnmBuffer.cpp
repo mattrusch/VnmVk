@@ -30,10 +30,10 @@ namespace
         return allocator.Allocate(device, bufferSize, memoryRequirements.memoryTypeBits, memoryProperties);
     }
 
-    void UpdateDeviceMemory(VkDevice device, VkDeviceMemory deviceMemory, const uint8_t* srcData, size_t srcDataSize, bool isHostCoherent)
+    void UpdateDeviceMemory(VkDevice device, VkDeviceMemory deviceMemory, size_t offset, const uint8_t* srcData, size_t srcDataSize, bool isHostCoherent)
     {
         void* dst = nullptr;
-        vkMapMemory(device, deviceMemory, 0, VK_WHOLE_SIZE, 0, &dst);
+        vkMapMemory(device, deviceMemory, offset, VK_WHOLE_SIZE, 0, &dst);
         ::memcpy(dst, srcData, srcDataSize);
 
         if (!isHostCoherent)
@@ -83,7 +83,7 @@ namespace Vnm
         CreateStagingBuffer(device, allocator, bufferData, bufferDataSize);
 
         // Copy data to staging buffer
-        UpdateDeviceMemory(device.GetDevice(), mStagingBufferMemory, bufferData, bufferDataSize, mIsHostCoherent);
+        UpdateDeviceMemory(device.GetDevice(), mStagingBufferMemory, 0, bufferData, bufferDataSize, mIsHostCoherent);
 
         // Upload staging buffer to device buffer
         VkBufferCopy bufferCopy = {};
@@ -121,17 +121,26 @@ namespace Vnm
     void Buffer::UpdateConstantBuffer(Device& device, const uint8_t* bufferData, size_t bufferDataSize)
     {
         assert(mBufferType == BufferType::Constant);
-        UpdateDeviceMemory(device.GetDevice(), mBufferMemory, bufferData, bufferDataSize, mIsHostCoherent);
+        UpdateDeviceMemory(device.GetDevice(), mBufferMemory, 0, bufferData, bufferDataSize, mIsHostCoherent);
+    }
+
+    void Buffer::CreateStagingBuffer(Device& device, Allocator& allocator, size_t bufferSize)
+    {
+        // Create staging buffer
+        mStagingBuffer = CreateBuffer(device.GetDevice(), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+        mStagingBufferMemory = AllocateDeviceMemory(allocator, device.GetDevice(), mStagingBuffer, Allocator::HostVisible, &mIsHostCoherent);
+        vkBindBufferMemory(device.GetDevice(), mStagingBuffer, mStagingBufferMemory, 0);
+    }
+
+    void Buffer::UpdateStagingBuffer(Device& device, size_t offset, const uint8_t* bufferData, size_t bufferDataSize)
+    {
+        // Copy data to staging buffer
+        UpdateDeviceMemory(device.GetDevice(), mStagingBufferMemory, offset, bufferData, bufferDataSize, mIsHostCoherent);
     }
 
     void Buffer::CreateStagingBuffer(Device& device, Allocator& allocator, const uint8_t* bufferData, size_t bufferDataSize)
     {
-        // Create staging buffer
-        mStagingBuffer = CreateBuffer(device.GetDevice(), bufferDataSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-        mStagingBufferMemory = AllocateDeviceMemory(allocator, device.GetDevice(), mStagingBuffer, Allocator::HostVisible, &mIsHostCoherent);
-        vkBindBufferMemory(device.GetDevice(), mStagingBuffer, mStagingBufferMemory, 0);
-
-        // Copy data to staging buffer
-        UpdateDeviceMemory(device.GetDevice(), mStagingBufferMemory, bufferData, bufferDataSize, mIsHostCoherent);
+        CreateStagingBuffer(device, allocator, bufferDataSize);
+        UpdateStagingBuffer(device, 0, bufferData, bufferDataSize);
     }
 }

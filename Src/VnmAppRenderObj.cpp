@@ -84,6 +84,8 @@ namespace Vnm
             mObjMesh.GetIndexDataSize(),
             Buffer::BufferType::Index);
 
+        const void* mipData = (const void*)imageData;
+        size_t mipSize = sizeof(imageData);
         mImage.Create2dImage(
             mRenderContext.GetDevice(),
             mRenderContext.GetAllocator(),
@@ -93,8 +95,8 @@ namespace Vnm
             1,
             VK_FORMAT_R8G8B8A8_UNORM,
             0,
-            reinterpret_cast<const uint8_t*>(imageData),
-            sizeof(imageData));
+            reinterpret_cast<const uint8_t**>(&mipData),
+            &mipSize);
 
         vkEndCommandBuffer(mRenderContext.GetUploadCommandBuffer().GetCommandBuffer());
 

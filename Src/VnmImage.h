@@ -31,8 +31,8 @@ namespace Vnm
             int numMipLevels,
             VkFormat format,
             uint32_t flags,
-            const uint8_t* imageData,
-            size_t imageDataSize);
+            const uint8_t* const* mipImageData,
+            const size_t* mipImageDataSizes);
 
         void Destroy(
             Device& device,

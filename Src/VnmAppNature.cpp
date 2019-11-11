@@ -9,6 +9,8 @@
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 
+#include <vector>
+
 namespace Vnm
 {
     class PerDrawCb
@@ -18,11 +20,53 @@ namespace Vnm
         glm::mat4 mWorld;
     };
 
+    static const uint32_t tgaFileBpp = 4;
+
+    // Currently assumes file is a 4 byte per pixel, square power of 2
     static void CreateImageFromFile(Image& dstImage, const char* filename, RenderContext& renderContext)
     {
         FileResource* tgaFileResource = FileResource::LoadFileResource(filename);
         TgaImage tgaImage;
         tgaImage.ParseData(tgaFileResource->GetData());
+
+        // Generate mipmaps
+        // TODO: Improve or remove and only support pre-generated mips
+        std::vector<const uint8_t*> mipData;
+        std::vector<size_t> mipSize;
+
+        mipData.emplace_back(tgaImage.GetImageData());
+        mipSize.emplace_back(tgaImage.GetSize());
+
+        int curWidth = tgaImage.GetWidth();
+        int curHeight = tgaImage.GetHeight();
+        const uint8_t* prevMipData = tgaImage.GetImageData();
+
+        while (curWidth > 1)
+        {
+            curWidth >>= 1;
+            curHeight >>= 1;
+
+            size_t curMipSize = curWidth * curHeight * tgaFileBpp;
+            uint8_t* curMipData = new uint8_t[curMipSize]; // TODO: Memory leak
+            mipData.emplace_back(curMipData);
+            mipSize.emplace_back(curMipSize);
+
+            for (int j = 0; j < curHeight; ++j)
+            {
+                for (int i = 0; i < curWidth; ++i)
+                {
+                    int srcIndex = (i * 2 + j * 2 * curWidth * 2) * tgaFileBpp;
+                    int dstIndex = (i + j * curWidth) * tgaFileBpp;
+
+                    curMipData[dstIndex + 0] = prevMipData[srcIndex + 0];
+                    curMipData[dstIndex + 1] = prevMipData[srcIndex + 1];
+                    curMipData[dstIndex + 2] = prevMipData[srcIndex + 2];
+                    curMipData[dstIndex + 3] = prevMipData[srcIndex + 3];
+                }
+            }
+
+            prevMipData = curMipData;
+        }
 
         VkCommandBufferBeginInfo cbBeginInfo = {};
         cbBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -34,11 +78,11 @@ namespace Vnm
             renderContext.GetUploadCommandBuffer(),
             tgaImage.GetWidth(),
             tgaImage.GetHeight(),
-            1,
+            static_cast<int>(mipData.size()),
             VK_FORMAT_B8G8R8A8_UNORM,
             0,
-            tgaImage.GetImageData(),
-            tgaImage.GetSize());
+            mipData.data(),
+            mipSize.data());
 
         vkEndCommandBuffer(renderContext.GetUploadCommandBuffer().GetCommandBuffer());
 

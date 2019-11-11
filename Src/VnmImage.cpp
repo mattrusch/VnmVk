@@ -2,6 +2,7 @@
 
 #include "VnmImage.h"
 #include <cassert>
+#include <vector>
 
 namespace
 {
@@ -151,11 +152,42 @@ namespace Vnm
         int numMipLevels, 
         VkFormat format, 
         uint32_t flags, 
-        const uint8_t* imageData, 
-        size_t imageDataSize)
+        const uint8_t* const* mipImageData, 
+        const size_t* mipImageDataSizes)
     {
+        // Calculate staging buffer size
+        size_t totalMipDataSize = 0;
+        for (int i = 0; i < numMipLevels; ++i)
+        {
+            totalMipDataSize += mipImageDataSizes[i];
+        }
+
         // Create staging buffer
-        mStagingBuffer.CreateStagingBuffer(device, allocator, imageData, imageDataSize);
+        mStagingBuffer.CreateStagingBuffer(device, allocator, totalMipDataSize);
+
+        // Copy mips into staging buffer and set up buffer image copy descriptors
+        size_t offset = 0;
+        std::vector<VkBufferImageCopy> bufferImageCopies(numMipLevels);
+        for (int i = 0; i < numMipLevels; ++i)
+        {
+            mStagingBuffer.UpdateStagingBuffer(device, offset, mipImageData[i], mipImageDataSizes[i]);
+
+            bufferImageCopies[i].bufferOffset = offset;
+            bufferImageCopies[i].imageExtent.width = width >> i;
+            bufferImageCopies[i].imageExtent.height = height >> i;
+            bufferImageCopies[i].imageExtent.depth = 1;
+            bufferImageCopies[i].imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            bufferImageCopies[i].imageSubresource.layerCount = 1;
+            bufferImageCopies[i].imageSubresource.mipLevel = i;
+            bufferImageCopies[i].imageSubresource.baseArrayLayer = 0;
+            bufferImageCopies[i].imageOffset.x = 0;
+            bufferImageCopies[i].imageOffset.y = 0;
+            bufferImageCopies[i].imageOffset.z = 0;
+            bufferImageCopies[i].bufferRowLength = width >> i;
+            bufferImageCopies[i].bufferImageHeight = height >> i;
+
+            offset += mipImageDataSizes[i];
+        }
 
         // Create device image
         VkImageCreateInfo imageCreateInfo;
@@ -178,17 +210,7 @@ namespace Vnm
             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
             VK_PIPELINE_STAGE_TRANSFER_BIT);
 
-        VkBufferImageCopy bufferImageCopy = {};
-        bufferImageCopy.imageExtent.width = width;
-        bufferImageCopy.imageExtent.height = height;
-        bufferImageCopy.imageExtent.depth = 1;
-        bufferImageCopy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        bufferImageCopy.imageSubresource.layerCount = 1;
-        bufferImageCopy.imageSubresource.mipLevel = 0;
-        bufferImageCopy.bufferRowLength = width;
-        bufferImageCopy.bufferImageHeight = height;
-
-        vkCmdCopyBufferToImage(uploadCommandBuffer.GetCommandBuffer(), mStagingBuffer.GetStagingBuffer(), mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &bufferImageCopy);
+        vkCmdCopyBufferToImage(uploadCommandBuffer.GetCommandBuffer(), mStagingBuffer.GetStagingBuffer(), mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, bufferImageCopies.size(), bufferImageCopies.data());
 
         mImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         SetImageMemoryBarrier(
@@ -206,7 +228,7 @@ namespace Vnm
         imageViewCreateInfo.format = format;
         imageViewCreateInfo.image = mImage;
         imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        imageViewCreateInfo.subresourceRange.levelCount = 1;
+        imageViewCreateInfo.subresourceRange.levelCount = bufferImageCopies.size();
         imageViewCreateInfo.subresourceRange.layerCount = 1;
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 
