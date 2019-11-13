@@ -10,6 +10,7 @@
 #include "glm/ext.hpp"
 
 #include <vector>
+#include <algorithm>
 
 namespace Vnm
 {
@@ -31,10 +32,11 @@ namespace Vnm
 
         // Generate mipmaps
         // TODO: Improve or remove and only support pre-generated mips
-        std::vector<const uint8_t*> mipData;
+        std::vector<uint8_t*> mipData;
         std::vector<size_t> mipSize;
 
-        mipData.emplace_back(tgaImage.GetImageData());
+        mipData.emplace_back(new uint8_t[tgaImage.GetSize()]);
+        memcpy(mipData[0], tgaImage.GetImageData(), tgaImage.GetSize());
         mipSize.emplace_back(tgaImage.GetSize());
 
         int curWidth = tgaImage.GetWidth();
@@ -47,7 +49,7 @@ namespace Vnm
             curHeight >>= 1;
 
             size_t curMipSize = curWidth * curHeight * tgaFileBpp;
-            uint8_t* curMipData = new uint8_t[curMipSize]; // TODO: Memory leak
+            uint8_t* curMipData = new uint8_t[curMipSize];
             mipData.emplace_back(curMipData);
             mipSize.emplace_back(curMipSize);
 
@@ -93,6 +95,11 @@ namespace Vnm
         vkQueueSubmit(renderContext.GetDevice().GetQueue(), 1, &submitInfo, renderContext.GetFence(0));
 
         vkWaitForFences(renderContext.GetDevice().GetDevice(), 1, &renderContext.GetFence(0), VK_TRUE, UINT64_MAX);
+
+        for(auto data : mipData)
+        {
+            delete[] data;
+        }
 
         FileResource::DestroyFileResource(tgaFileResource);
     }
