@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <cassert>
 
 namespace Vnm
 {
@@ -29,6 +30,8 @@ namespace Vnm
         FileResource* tgaFileResource = FileResource::LoadFileResource(filename);
         TgaImage tgaImage;
         tgaImage.ParseData(tgaFileResource->GetData());
+        assert(tgaImage.GetWidth() == tgaImage.GetHeight());
+        assert(tgaImage.GetBytesPerPixel() == 4);
 
         // Generate mipmaps
         // TODO: Improve or remove and only support pre-generated mips
@@ -102,6 +105,53 @@ namespace Vnm
         }
 
         FileResource::DestroyFileResource(tgaFileResource);
+    }
+
+    static void CreateMippedImageFromFiles(Image& dstImage, size_t numMips, const char* const* mipFilenames, RenderContext& renderContext)
+    {
+        std::vector<FileResource*> fileResources(numMips);
+        std::vector<TgaImage> tgaImages(numMips);
+        std::vector<const uint8_t*> mipData(numMips);
+        std::vector<size_t> mipSize(numMips);
+
+        for (int i = 0; i < numMips; ++i)
+        {
+            fileResources[i] = FileResource::LoadFileResource(mipFilenames[i]);
+            tgaImages[i].ParseData(fileResources[i]->GetData());
+            mipData[i] = tgaImages[i].GetImageData();
+            mipSize[i] = tgaImages[i].GetSize();
+        }
+
+        VkCommandBufferBeginInfo cbBeginInfo = {};
+        cbBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        vkBeginCommandBuffer(renderContext.GetUploadCommandBuffer().GetCommandBuffer(), &cbBeginInfo);
+
+        dstImage.Create2dImage(
+            renderContext.GetDevice(),
+            renderContext.GetAllocator(),
+            renderContext.GetUploadCommandBuffer(),
+            tgaImages[0].GetWidth(),
+            tgaImages[0].GetHeight(),
+            static_cast<int>(mipData.size()),
+            VK_FORMAT_B8G8R8A8_UNORM,
+            0,
+            mipData.data(),
+            mipSize.data());
+
+        vkEndCommandBuffer(renderContext.GetUploadCommandBuffer().GetCommandBuffer());
+
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = renderContext.GetUploadCommandBuffer().GetCommandBufferPtr();
+        vkQueueSubmit(renderContext.GetDevice().GetQueue(), 1, &submitInfo, renderContext.GetFence(0));
+
+        vkWaitForFences(renderContext.GetDevice().GetDevice(), 1, &renderContext.GetFence(0), VK_TRUE, UINT64_MAX);
+
+        for (auto resource : fileResources)
+        {
+            FileResource::DestroyFileResource(resource);
+        }
     }
 
     void AppNature::Startup()
@@ -185,7 +235,25 @@ namespace Vnm
 
         vkWaitForFences(mRenderContext.GetDevice().GetDevice(), 1, &mRenderContext.GetFence(0), VK_TRUE, UINT64_MAX);
 
-        CreateImageFromFile(mImage[0], "grass_green_01_basecolor.tga", mRenderContext);
+        const char* mipFilenames[] = 
+        {
+            "grass_mip0.tga",
+            "grass_mip1.tga",
+            "grass_mip2.tga",
+            "grass_mip3.tga",
+            "grass_mip4.tga",
+            "grass_mip5.tga",
+            "grass_mip6.tga",
+            "grass_mip7.tga",
+            "grass_mip8.tga",
+            "grass_mip9.tga",
+            "grass_mip10.tga",
+            "grass_mip11.tga"
+        };
+
+        int numMips = sizeof(mipFilenames) / sizeof(mipFilenames[0]);
+
+        CreateMippedImageFromFiles(mImage[0], numMips, mipFilenames, mRenderContext);
         CreateImageFromFile(mImage[1], "bad_water.tga", mRenderContext);
 
         mDescriptorPool.Create(mRenderContext.GetDevice());
