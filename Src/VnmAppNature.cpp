@@ -8,6 +8,7 @@
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
+#include "gli/gli.hpp"
 
 #include <vector>
 #include <algorithm>
@@ -22,55 +23,18 @@ namespace Vnm
         glm::mat4 mWorld;
     };
 
-    static const uint32_t tgaFileBpp = 4;
-
-    // Currently assumes file is a 4 byte per pixel, square power of 2
     static void CreateImageFromFile(Image& dstImage, const char* filename, RenderContext& renderContext)
     {
-        FileResource* tgaFileResource = FileResource::LoadFileResource(filename);
-        TgaImage tgaImage;
-        tgaImage.ParseData(tgaFileResource->GetData());
-        assert(tgaImage.GetWidth() == tgaImage.GetHeight());
-        assert(tgaImage.GetBytesPerPixel() == 4);
+        gli::texture2d texture(gli::load(filename));
+        assert(!texture.empty());
 
-        // Generate mipmaps
-        // TODO: Improve or remove and only support pre-generated mips
-        std::vector<uint8_t*> mipData;
-        std::vector<size_t> mipSize;
+        std::vector<const uint8_t*> mipData(texture.levels());
+        std::vector<size_t> mipSize(texture.levels());
 
-        mipData.emplace_back(new uint8_t[tgaImage.GetSize()]);
-        memcpy(mipData[0], tgaImage.GetImageData(), tgaImage.GetSize());
-        mipSize.emplace_back(tgaImage.GetSize());
-
-        int curWidth = tgaImage.GetWidth();
-        int curHeight = tgaImage.GetHeight();
-        const uint8_t* prevMipData = tgaImage.GetImageData();
-
-        while (curWidth > 1)
+        for (int i = 0; i < texture.levels(); ++i)
         {
-            curWidth >>= 1;
-            curHeight >>= 1;
-
-            size_t curMipSize = curWidth * curHeight * tgaFileBpp;
-            uint8_t* curMipData = new uint8_t[curMipSize];
-            mipData.emplace_back(curMipData);
-            mipSize.emplace_back(curMipSize);
-
-            for (int j = 0; j < curHeight; ++j)
-            {
-                for (int i = 0; i < curWidth; ++i)
-                {
-                    int srcIndex = (i * 2 + j * 2 * curWidth * 2) * tgaFileBpp;
-                    int dstIndex = (i + j * curWidth) * tgaFileBpp;
-
-                    curMipData[dstIndex + 0] = prevMipData[srcIndex + 0];
-                    curMipData[dstIndex + 1] = prevMipData[srcIndex + 1];
-                    curMipData[dstIndex + 2] = prevMipData[srcIndex + 2];
-                    curMipData[dstIndex + 3] = prevMipData[srcIndex + 3];
-                }
-            }
-
-            prevMipData = curMipData;
+            mipData[i] = (const uint8_t*)texture[i].data();
+            mipSize[i] = texture[i].size();
         }
 
         VkCommandBufferBeginInfo cbBeginInfo = {};
@@ -81,10 +45,10 @@ namespace Vnm
             renderContext.GetDevice(),
             renderContext.GetAllocator(),
             renderContext.GetUploadCommandBuffer(),
-            tgaImage.GetWidth(),
-            tgaImage.GetHeight(),
-            static_cast<int>(mipData.size()),
-            VK_FORMAT_B8G8R8A8_UNORM,
+            texture.extent().x,
+            texture.extent().y,
+            static_cast<int>(texture.levels()),
+            VK_FORMAT_R8G8B8A8_UNORM,
             0,
             mipData.data(),
             mipSize.data());
@@ -98,13 +62,6 @@ namespace Vnm
         vkQueueSubmit(renderContext.GetDevice().GetQueue(), 1, &submitInfo, renderContext.GetFence(0));
 
         vkWaitForFences(renderContext.GetDevice().GetDevice(), 1, &renderContext.GetFence(0), VK_TRUE, UINT64_MAX);
-
-        for(auto data : mipData)
-        {
-            delete[] data;
-        }
-
-        FileResource::DestroyFileResource(tgaFileResource);
     }
 
     static void CreateMippedImageFromFiles(Image& dstImage, size_t numMips, const char* const* mipFilenames, RenderContext& renderContext)
@@ -235,26 +192,8 @@ namespace Vnm
 
         vkWaitForFences(mRenderContext.GetDevice().GetDevice(), 1, &mRenderContext.GetFence(0), VK_TRUE, UINT64_MAX);
 
-        const char* mipFilenames[] = 
-        {
-            "grass_mip0.tga",
-            "grass_mip1.tga",
-            "grass_mip2.tga",
-            "grass_mip3.tga",
-            "grass_mip4.tga",
-            "grass_mip5.tga",
-            "grass_mip6.tga",
-            "grass_mip7.tga",
-            "grass_mip8.tga",
-            "grass_mip9.tga",
-            "grass_mip10.tga",
-            "grass_mip11.tga"
-        };
-
-        int numMips = sizeof(mipFilenames) / sizeof(mipFilenames[0]);
-
-        CreateMippedImageFromFiles(mImage[0], numMips, mipFilenames, mRenderContext);
-        CreateImageFromFile(mImage[1], "bad_water.tga", mRenderContext);
+        CreateImageFromFile(mImage[0], "grass_green_01_ARGB_8888_1.KTX", mRenderContext);
+        CreateImageFromFile(mImage[1], "bad_water_ARGB_8888_1.KTX", mRenderContext);
 
         mDescriptorPool.Create(mRenderContext.GetDevice());
         mDescriptorSet[0].Create(mRenderContext.GetDevice(), mDescriptorPool, descriptorSetLayout);
