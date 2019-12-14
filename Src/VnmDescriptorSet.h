@@ -9,6 +9,8 @@
 #include "VnmImage.h"
 #include "VnmSampler.h"
 
+#include <vector>
+
 namespace Vnm
 {
     class DescriptorSet
@@ -27,6 +29,13 @@ namespace Vnm
             Buffer& buffer, 
             Image& image, 
             Sampler& sampler);
+
+        void Update(
+            Device& device,
+            std::vector<VkDescriptorType>& descriptorTypes,
+            std::vector<Buffer*>& buffers,
+            std::vector<Image*> images,
+            std::vector<Sampler*> samplers);
 
         void Destroy(
             Device& device,

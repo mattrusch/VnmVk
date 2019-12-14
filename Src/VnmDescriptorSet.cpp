@@ -1,6 +1,7 @@
 // VnmDescriptorSet.cpp
 
 #include "VnmDescriptorSet.h"
+#include <vector>
 #include <cassert>
 
 namespace
@@ -51,6 +52,55 @@ namespace Vnm
 
         uint32_t numWriteDescriptorSets = sizeof(writeDescriptorSet) / sizeof(writeDescriptorSet[0]);
         vkUpdateDescriptorSets(device.GetDevice(), numWriteDescriptorSets, writeDescriptorSet, 0, nullptr);
+    }
+
+    void DescriptorSet::Update(Device& device, std::vector<VkDescriptorType>& descriptorTypes, std::vector<Buffer*>& buffers, std::vector<Image*> images, std::vector<Sampler*> samplers)
+    {
+        assert(descriptorTypes.size() == buffers.size() + images.size());
+        assert(images.size() == samplers.size());
+
+        // TODO: Bake or statically allocate the following descriptor info arrays
+        std::vector<VkDescriptorBufferInfo> descriptorBufferInfos(buffers.size());
+        for (size_t i = 0, size = buffers.size(); i < size; ++i)
+        {
+            descriptorBufferInfos[i].buffer = buffers[i]->GetBuffer();
+            descriptorBufferInfos[i].offset = 0;
+            descriptorBufferInfos[i].range = VK_WHOLE_SIZE;
+        }
+
+        std::vector<VkDescriptorImageInfo> descriptorImageInfos(images.size());
+        for (size_t i = 0, size = images.size(); i < size; ++i)
+        {
+            descriptorImageInfos[i].imageLayout = images[i]->GetImageLayout();
+            descriptorImageInfos[i].imageView = images[i]->GetImageView();
+            descriptorImageInfos[i].sampler = samplers[i]->GetSampler();
+        }
+        
+        int curBufferIndex = 0;
+        int curImageIndex = 0;
+        std::vector<VkWriteDescriptorSet> writeDescriptorSets(descriptorTypes.size());
+        for (size_t i = 0, size = descriptorTypes.size(); i < size; ++i)
+        {
+            writeDescriptorSets[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            writeDescriptorSets[i].dstSet = mDescriptorSet;
+            writeDescriptorSets[i].descriptorCount = 1;
+            writeDescriptorSets[i].dstArrayElement = 0;
+            writeDescriptorSets[i].dstBinding = static_cast<uint32_t>(i);
+            writeDescriptorSets[i].descriptorType = descriptorTypes[i];
+
+            switch (descriptorTypes[i])
+            {
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                writeDescriptorSets[i].pBufferInfo = descriptorBufferInfos.data() + curBufferIndex++;
+                break;
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                writeDescriptorSets[i].pImageInfo = descriptorImageInfos.data() + curImageIndex++;
+                break;
+            default:
+                assert(!"Unknown descriptor type");
+                break;
+            }
+        }
     }
 
     void DescriptorSet::Destroy(Device& device, DescriptorPool& descriptorPool)
