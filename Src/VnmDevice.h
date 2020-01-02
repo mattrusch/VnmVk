@@ -14,13 +14,13 @@ namespace Vnm
         ~Device() = default;
 
         void Create();
-        void Destroy();
+        void Destroy(); // TODO
 
         VkInstance GetInstance() const             { return mInstance; }
         VkPhysicalDevice GetPhysicalDevice() const { return mPhysicalDevice; }
         VkDevice GetDevice() const                 { return mDevice; }
         VkQueue GetQueue() const                   { return mQueue; }
-        int GetQueueFamilyIndex() const            { return mQueueFamilyIndex;}
+        int GetQueueFamilyIndex() const            { return mQueueFamilyIndex; }
 
     private:
         VkInstance       mInstance         = VK_NULL_HANDLE;

@@ -112,7 +112,8 @@ namespace
         instanceCreateInfo.pApplicationInfo = &applicationInfo;
 
         VkInstance instance = VK_NULL_HANDLE;
-        vkCreateInstance(&instanceCreateInfo, nullptr, &instance);
+        VkResult res = vkCreateInstance(&instanceCreateInfo, nullptr, &instance);
+        assert(res == VK_SUCCESS);
 
         return instance;
     }
