@@ -42,7 +42,9 @@ namespace
         VkImageLayout oldImageLayout,
         VkImageLayout newImageLayout,
         VkPipelineStageFlags srcStages,
-        VkPipelineStageFlags dstStages)
+        VkPipelineStageFlags dstStages,
+        uint32_t baseMipLevel = 0,
+        uint32_t mipLevelCount = 1)
     {
         VkImageMemoryBarrier imageMemoryBarrier = {};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -55,8 +57,8 @@ namespace
         imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         imageMemoryBarrier.image = image;
         imageMemoryBarrier.subresourceRange.aspectMask = aspectMask;
-        imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
-        imageMemoryBarrier.subresourceRange.levelCount = 1;
+        imageMemoryBarrier.subresourceRange.baseMipLevel = baseMipLevel;
+        imageMemoryBarrier.subresourceRange.levelCount = mipLevelCount;
         imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
         imageMemoryBarrier.subresourceRange.layerCount = 1;
 
@@ -208,9 +210,11 @@ namespace Vnm
             VK_IMAGE_LAYOUT_UNDEFINED,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-            VK_PIPELINE_STAGE_TRANSFER_BIT);
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            0,
+            numMipLevels);
 
-        vkCmdCopyBufferToImage(uploadCommandBuffer.GetCommandBuffer(), mStagingBuffer.GetStagingBuffer(), mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, bufferImageCopies.size(), bufferImageCopies.data());
+        vkCmdCopyBufferToImage(uploadCommandBuffer.GetCommandBuffer(), mStagingBuffer.GetStagingBuffer(), mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, static_cast<uint32_t>(bufferImageCopies.size()), bufferImageCopies.data());
 
         mImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         SetImageMemoryBarrier(
@@ -220,7 +224,9 @@ namespace Vnm
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             mImageLayout,
             VK_PIPELINE_STAGE_TRANSFER_BIT,
-            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            0,
+            numMipLevels);
 
         // Create image view
         VkImageViewCreateInfo imageViewCreateInfo = {};
@@ -228,7 +234,7 @@ namespace Vnm
         imageViewCreateInfo.format = format;
         imageViewCreateInfo.image = mImage;
         imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        imageViewCreateInfo.subresourceRange.levelCount = bufferImageCopies.size();
+        imageViewCreateInfo.subresourceRange.levelCount = static_cast<uint32_t>(bufferImageCopies.size());
         imageViewCreateInfo.subresourceRange.layerCount = 1;
         imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 
