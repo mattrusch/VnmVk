@@ -32,10 +32,10 @@ namespace Vnm
 
         void Update(
             Device& device,
-            std::vector<VkDescriptorType>& descriptorTypes,
-            std::vector<Buffer*>& buffers,
-            std::vector<Image*> images,
-            std::vector<Sampler*> samplers);
+            const std::vector<VkDescriptorType>& descriptorTypes,
+            const std::vector<Buffer*>& buffers,
+            const std::vector<Image*>& images,
+            const std::vector<Sampler*>& samplers);
 
         void Destroy(
             Device& device,

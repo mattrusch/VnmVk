@@ -54,7 +54,7 @@ namespace Vnm
         vkUpdateDescriptorSets(device.GetDevice(), numWriteDescriptorSets, writeDescriptorSet, 0, nullptr);
     }
 
-    void DescriptorSet::Update(Device& device, std::vector<VkDescriptorType>& descriptorTypes, std::vector<Buffer*>& buffers, std::vector<Image*> images, std::vector<Sampler*> samplers)
+    void DescriptorSet::Update(Device& device, const std::vector<VkDescriptorType>& descriptorTypes, const std::vector<Buffer*>& buffers, const std::vector<Image*>& images, const std::vector<Sampler*>& samplers)
     {
         assert(descriptorTypes.size() == buffers.size() + images.size());
         assert(images.size() == samplers.size());
@@ -101,6 +101,8 @@ namespace Vnm
                 break;
             }
         }
+
+        vkUpdateDescriptorSets(device.GetDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
     }
 
     void DescriptorSet::Destroy(Device& device, DescriptorPool& descriptorPool)
