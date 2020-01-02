@@ -164,6 +164,12 @@
     <None Include="..\Shaders\SimpleFrag.fs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="..\Shaders\NormalMapFrag.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\NormalMapVert.vs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Vnm">

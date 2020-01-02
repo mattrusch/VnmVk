@@ -206,6 +206,8 @@
     <ClInclude Include="..\Src\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Shaders\NormalMapFrag.fs" />
+    <None Include="..\Shaders\NormalMapVert.vs" />
     <None Include="..\Shaders\SimpleFrag.fs" />
     <None Include="..\Shaders\SimpleVert.vs" />
   </ItemGroup>
