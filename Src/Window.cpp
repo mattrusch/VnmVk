@@ -10,17 +10,53 @@ static inline bool RangeContaninsValue(int value, int start, int end)
 LRESULT CALLBACK DefaultWndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
     Vnm::Window* window = (Vnm::Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    Vnm::MouseState& mouseState = window->GetMouseState();
 
+    // TODO: Consider moving to RAWINPUT rather than windows messaging for keyboard/mouse input
     switch (message)
     {
     case WM_NCCREATE:
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)LPCREATESTRUCT(lparam)->lpCreateParams);
         break;
     case WM_KEYDOWN:
-        if (wparam == VK_ESCAPE)
+        switch (wparam)
         {
+        case VK_ESCAPE:
             PostQuitMessage(0);
             return 0;
+        case 'W':
+            window->GetInputState().mForward = true;
+            break;
+        case 'S':
+            window->GetInputState().mReverse = true;
+            break;
+        case 'A':
+            window->GetInputState().mLeft = true;
+            break;
+        case 'D':
+            window->GetInputState().mRight = true;
+            break;
+        default:
+            break;
+        }
+        break;
+    case WM_KEYUP:
+        switch (wparam)
+        {
+        case 'W':
+            window->GetInputState().mForward = false;
+            break;
+        case 'S':
+            window->GetInputState().mReverse = false;
+            break;
+        case 'A':
+            window->GetInputState().mLeft = false;
+            break;
+        case 'D':
+            window->GetInputState().mRight = false;
+            break;
+        default:
+            break;
         }
         break;
     case WM_DESTROY:
@@ -28,61 +64,48 @@ LRESULT CALLBACK DefaultWndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM l
         break;
     case WM_LBUTTONDOWN:
     {
-        Vnm::MouseState mouseState = window->GetMouseState();
         mouseState.mLeftButtonDown = true;
         mouseState.mMouseX = LOWORD(lparam);
         mouseState.mMouseY = HIWORD(lparam);
-        window->SetMouseState(mouseState);
         break;
     }
     case WM_LBUTTONUP:
     {
-        Vnm::MouseState mouseState = window->GetMouseState();
         mouseState.mLeftButtonDown = false;
         mouseState.mMouseX = LOWORD(lparam);
         mouseState.mMouseY = HIWORD(lparam);
-        window->SetMouseState(mouseState);
         break;
     }
     case WM_MBUTTONDOWN:
     {
-        Vnm::MouseState mouseState = window->GetMouseState();
         mouseState.mMiddleButtonDown = true;
         mouseState.mMouseX = LOWORD(lparam);
         mouseState.mMouseY = HIWORD(lparam);
-        window->SetMouseState(mouseState);
         break;
     }
     case WM_MBUTTONUP:
     {
-        Vnm::MouseState mouseState = window->GetMouseState();
         mouseState.mMiddleButtonDown = false;
         mouseState.mMouseX = LOWORD(lparam);
         mouseState.mMouseY = HIWORD(lparam);
-        window->SetMouseState(mouseState);
         break;
     }
     case WM_RBUTTONDOWN:
     {
-        Vnm::MouseState mouseState = window->GetMouseState();
         mouseState.mRightButtonDown = true;
         mouseState.mMouseX = LOWORD(lparam);
         mouseState.mMouseY = HIWORD(lparam);
-        window->SetMouseState(mouseState);
-        break;
+         break;
     }
     case WM_RBUTTONUP:
     {
-        Vnm::MouseState mouseState = window->GetMouseState();
-        mouseState.mRightButtonDown = false;
+         mouseState.mRightButtonDown = false;
         mouseState.mMouseX = LOWORD(lparam);
         mouseState.mMouseY = HIWORD(lparam);
-        window->SetMouseState(mouseState);
         break;
     }
     case WM_MOUSEMOVE:
     {
-        Vnm::MouseState mouseState = window->GetMouseState();
         SetCapture(hwnd);
         mouseState.mMouseX = LOWORD(lparam);
         mouseState.mMouseY = HIWORD(lparam);
@@ -93,7 +116,6 @@ LRESULT CALLBACK DefaultWndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM l
             mouseState.mRightButtonDown = false;
             ReleaseCapture();
         }
-        window->SetMouseState(mouseState);
         break;
     }
     default:

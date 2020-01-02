@@ -30,6 +30,7 @@ namespace Vnm
 
         glm::mat4 GetLookAt() const;
         void Move(const glm::vec3& delta);
+        void MoveForward(float distance);
         void MoveForwardConstrainHeight(float distance);
         void MoveRightConstrainHeight(float distance);
         void MoveUp(float distance);

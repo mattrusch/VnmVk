@@ -22,6 +22,18 @@ namespace Vnm
         int  mMouseY           = 0;
     };
 
+    class InputState
+    {
+    public:
+        InputState() = default;
+        ~InputState() = default;
+
+        bool mForward = false;
+        bool mReverse = false;
+        bool mRight   = false;
+        bool mLeft    = false;
+    };
+
     class Window
     {
     public:
@@ -46,15 +58,16 @@ namespace Vnm
 
         void Destroy();
 
-        HWND GetHandle() const           { return mHandle; }
-        int  GetWidth() const            { return mWidth; }
-        int  GetHeight() const           { return mHeight; }
-        MouseState GetMouseState() const { return mMouseState; }
-        
-        void SetMouseState(const MouseState& mouseState) { mMouseState = mouseState; }
+        HWND GetHandle() const      { return mHandle; }
+        int  GetWidth() const       { return mWidth; }
+        int  GetHeight() const      { return mHeight; }
+
+        MouseState& GetMouseState() { return mMouseState; }
+        InputState& GetInputState() { return mInputState; }
 
     private:
         MouseState mMouseState;
+        InputState mInputState;
         HWND       mHandle;
         int        mWidth;
         int        mHeight;

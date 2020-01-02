@@ -34,10 +34,18 @@ namespace Vnm
         mTarget += delta;
     }
 
+    void ThirdPersonCamera::MoveForward(float distance)
+    {
+        glm::vec3 forward = mTarget - mPosition;
+        forward = glm::normalize(forward);
+        glm::vec3 scaledDirection = forward * distance;
+        Move(scaledDirection);
+    }
+
     void ThirdPersonCamera::MoveForwardConstrainHeight(float distance)
     {
         glm::vec3 forward = mTarget - mPosition;
-        forward.y = 0.0f;
+        forward.z = 0.0f;
         forward = glm::normalize(forward);
         glm::vec3 scaledDirection = forward * distance;
         Move(scaledDirection);
