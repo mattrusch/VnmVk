@@ -13,6 +13,31 @@
 
 namespace Vnm
 {
+    enum ShaderType
+    {
+        Simple,
+        NormalMap,
+        NumShaderTypes
+    };
+
+    enum TextureType
+    {
+        GrassAlbedo,
+        DirtAlbedo,
+        DirtNormal,
+        BadWater,
+        NumTextureTypes
+    };
+
+    // These currently must correspond with the submesh indices
+    enum MaterialType
+    {
+        SimpleTerrain,
+        SimpleWater,
+        NmTerrain,
+        NumMaterialTypes
+    };
+
     class AppNature : public Application
     {
     public:
@@ -21,16 +46,16 @@ namespace Vnm
         virtual void Shutdown();
 
     private:
-        Shader            mVertexShader;
-        Shader            mFragmentShader;
-        Pipeline          mPipeline;
-        PipelineLayout    mPipelineLayout;
+        Shader            mVertexShader[NumShaderTypes];
+        Shader            mFragmentShader[NumShaderTypes];
+        Pipeline          mPipeline[NumShaderTypes];
+        PipelineLayout    mPipelineLayout[NumShaderTypes];
         Buffer            mVertexBuffer;
         Buffer            mIndexBuffer;
-        DescriptorSet     mDescriptorSet[2];
+        DescriptorSet     mDescriptorSets[NumMaterialTypes];
         DescriptorPool    mDescriptorPool;
         Buffer            mUniformBuffer;
-        Image             mImage[2];
+        Image             mImage[NumTextureTypes];
         Sampler           mSampler;
         VnmMesh           mMesh;
         ThirdPersonCamera mCamera;
