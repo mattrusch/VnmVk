@@ -62,6 +62,7 @@ namespace Vnm
         vkQueueSubmit(renderContext.GetDevice().GetQueue(), 1, &submitInfo, renderContext.GetFence(0));
 
         vkWaitForFences(renderContext.GetDevice().GetDevice(), 1, &renderContext.GetFence(0), VK_TRUE, UINT64_MAX);
+        vkResetFences(renderContext.GetDevice().GetDevice(), 1, &renderContext.GetFence(0));
     }
 
     static void CreateMippedImageFromFiles(Image& dstImage, size_t numMips, const char* const* mipFilenames, RenderContext& renderContext)
@@ -232,6 +233,7 @@ namespace Vnm
         vkQueueSubmit(mRenderContext.GetDevice().GetQueue(), 1, &submitInfo, mRenderContext.GetFence(0));
 
         vkWaitForFences(mRenderContext.GetDevice().GetDevice(), 1, &mRenderContext.GetFence(0), VK_TRUE, UINT64_MAX);
+        vkResetFences(mRenderContext.GetDevice().GetDevice(), 1, &mRenderContext.GetFence(0));
 
         CreateImageFromFile(mImage[GrassAlbedo], "grass_green_01_ARGB_8888_1.KTX", mRenderContext);
         CreateImageFromFile(mImage[DirtAlbedo], "rocky-worn-ground-albedo_ARGB_8888_1.KTX", mRenderContext);

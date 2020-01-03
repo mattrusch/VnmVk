@@ -159,7 +159,7 @@ namespace Vnm
         {
             VkFenceCreateInfo fenceCreateInfo = {};
             fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-            fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+            //fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
             vkCreateFence(mDevice.GetDevice(), &fenceCreateInfo, nullptr, &mFences[i]);
         }
 
@@ -180,8 +180,6 @@ namespace Vnm
         assert(mDevice.GetInstance() != VK_NULL_HANDLE);
 
         vkAcquireNextImageKHR(mDevice.GetDevice(), mSwapChain.GetSwapchain(), UINT64_MAX, mImageAcquiredSemaphore, VK_NULL_HANDLE, &mCurrentBackbufferIndex);
-        vkWaitForFences(mDevice.GetDevice(), 1, &mFences[mCurrentBackbufferIndex], VK_TRUE, UINT64_MAX);
-        vkResetFences(mDevice.GetDevice(), 1, &mFences[mCurrentBackbufferIndex]);
 
         VkCommandBufferBeginInfo commandBufferBeginInfo = {};
         commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -236,6 +234,8 @@ namespace Vnm
         vkQueuePresentKHR(mDevice.GetQueue(), &presentInfo);
 
         vkQueueSubmit(mDevice.GetQueue(), 0, nullptr, mFences[mCurrentBackbufferIndex]);
+        vkWaitForFences(mDevice.GetDevice(), 1, &mFences[mCurrentBackbufferIndex], VK_TRUE, UINT64_MAX);
+        vkResetFences(mDevice.GetDevice(), 1, &mFences[mCurrentBackbufferIndex]);
     }
 
     void RenderContext::Shutdown()
