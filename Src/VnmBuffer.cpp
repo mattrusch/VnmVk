@@ -100,7 +100,7 @@ namespace Vnm
         uploadBarrier.dstAccessMask = bufferType == BufferType::Index ? VK_ACCESS_INDEX_READ_BIT : VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
         uploadBarrier.size = VK_WHOLE_SIZE;
 
-        vkCmdPipelineBarrier(uploadCommandBuffer.GetCommandBuffer(), VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 1, &uploadBarrier, 0, nullptr);
+        vkCmdPipelineBarrier(uploadCommandBuffer.GetCommandBuffer(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, nullptr, 1, &uploadBarrier, 0, nullptr);
     }
 
     void Buffer::Destroy(Device& device, Allocator& allocator)
