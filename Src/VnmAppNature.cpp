@@ -121,8 +121,8 @@ namespace Vnm
         mVertexShader[Simple].CreateFromFile(mRenderContext.GetDevice(), "SimpleVert.spv");
         mFragmentShader[Simple].CreateFromFile(mRenderContext.GetDevice(), "SimpleFrag.spv");
 
-        mVertexShader[NormalMap].CreateFromFile(mRenderContext.GetDevice(), "NormalMap.spv");
-        mFragmentShader[NormalMap].CreateFromFile(mRenderContext.GetDevice(), "NormalMap.spv");
+        mVertexShader[NormalMap].CreateFromFile(mRenderContext.GetDevice(), "NormalMapVert.spv");
+        mFragmentShader[NormalMap].CreateFromFile(mRenderContext.GetDevice(), "NormalMapFrag.spv");
 
         // Create shader resources
         mSampler.Create(mRenderContext.GetDevice());
@@ -197,6 +197,14 @@ namespace Vnm
             mVertexShader[Simple].GetShaderModule(), 
             mFragmentShader[Simple].GetShaderModule());
 
+        mPipeline[NormalMap].Create(
+            mRenderContext.GetDevice(),
+            vertexDescription,
+            mRenderContext.GetRenderPass(),
+            mPipelineLayout[NormalMap].GetPipelineLayout(),
+            mVertexShader[NormalMap].GetShaderModule(),
+            mFragmentShader[NormalMap].GetShaderModule());
+
         VkCommandBufferBeginInfo cbBeginInfo = {};
         cbBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -235,28 +243,39 @@ namespace Vnm
 
         CreateImageFromFile(mImage[GrassAlbedo], "grass_green_01_ARGB_8888_1.KTX", mRenderContext);
         CreateImageFromFile(mImage[DirtAlbedo], "rocky-worn-ground-albedo_ARGB_8888_1.KTX", mRenderContext);
+        CreateImageFromFile(mImage[DirtNormal], "rocky-worn-ground-normal-dx_ARGB_8888_1.KTX", mRenderContext);
         CreateImageFromFile(mImage[BadWater], "bad_water_ARGB_8888_1.KTX", mRenderContext);
 
         mDescriptorPool.Create(mRenderContext.GetDevice());
         mDescriptorSets[SimpleTerrain].Create(mRenderContext.GetDevice(), mDescriptorPool, simpleDescriptorSetLayout);
         mDescriptorSets[SimpleWater].Create(mRenderContext.GetDevice(), mDescriptorPool, simpleDescriptorSetLayout);
+        mDescriptorSets[NmTerrain].Create(mRenderContext.GetDevice(), mDescriptorPool, nmDescriptorSetLayout);
 
         mUniformBuffer.CreateConstantBuffer(mRenderContext.GetDevice(), mRenderContext.GetAllocator(), sizeof(PerDrawCb));
         PerDrawCb constantBufferData;
         constantBufferData.mWorldViewProj = glm::mat4(1.0f);
         mUniformBuffer.UpdateConstantBuffer(mRenderContext.GetDevice(), reinterpret_cast<uint8_t*>(&constantBufferData.mWorldViewProj), sizeof(constantBufferData));
+
         mDescriptorSets[SimpleTerrain].Update(
             mRenderContext.GetDevice(), 
-            std::vector<VkDescriptorType> { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE }, 
+            std::vector<VkDescriptorType> { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_DESCRIPTOR_TYPE_SAMPLER },
             std::vector<Buffer*> { &mUniformBuffer },
             std::vector<Image*> { &mImage[DirtAlbedo] },
             std::vector<Sampler*> { &mSampler });
+
         mDescriptorSets[SimpleWater].Update(
             mRenderContext.GetDevice(),
-            std::vector<VkDescriptorType> { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE },
+            std::vector<VkDescriptorType> { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_DESCRIPTOR_TYPE_SAMPLER },
             std::vector<Buffer*> { &mUniformBuffer },
             std::vector<Image*> { &mImage[BadWater] },
             std::vector<Sampler*> { &mSampler });
+
+        mDescriptorSets[NmTerrain].Update(
+            mRenderContext.GetDevice(),
+            std::vector<VkDescriptorType> { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_DESCRIPTOR_TYPE_SAMPLER, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_DESCRIPTOR_TYPE_SAMPLER },
+            std::vector<Buffer*> { &mUniformBuffer },
+            std::vector<Image*> { &mImage[DirtAlbedo], &mImage[DirtNormal] },
+            std::vector<Sampler*> { &mSampler, &mSampler });
     }
 
     static void CalcModelToProjection(float aspect, const ThirdPersonCamera& camera, glm::mat4& outModelToProjection, glm::mat4& outModelToWorld)
