@@ -197,8 +197,6 @@ namespace Vnm
             mVertexShader[Simple].GetShaderModule(), 
             mFragmentShader[Simple].GetShaderModule());
 
-        vkResetFences(mRenderContext.GetDevice().GetDevice(), 1, &mRenderContext.GetFence(0));
-
         VkCommandBufferBeginInfo cbBeginInfo = {};
         cbBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
