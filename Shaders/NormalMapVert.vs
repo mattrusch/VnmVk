@@ -37,4 +37,8 @@ void main()
 	vec3 worldNormal = (ubo.world * vec4(inNormal, 0.0)).xyz;
 	vec3 worldTangent = (ubo.world * vec4(inTangent.xyz, 0.0)).xyz;
     vec3 worldBitangent = cross(worldTangent, worldNormal) * inTangent.w;
+
+    outNormal = worldNormal;
+    outTangent = worldTangent;
+    outBitangent = worldBitangent;
 }
